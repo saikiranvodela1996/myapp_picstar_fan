@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar_layout" />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/liveselfie_tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabIndicatorColor="@color/button_color"
+        app:tabIndicatorFullWidth="false"
+        app:tabSelectedTextColor="@color/button_color"
+        app:tabTextAppearance="@style/CustomTextAppearanceTab"
+        app:tabGravity="center"
+
+        />
+
+    <FrameLayout
+        android:id="@+id/liveselfie_frame_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

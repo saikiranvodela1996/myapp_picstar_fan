@@ -1,0 +1,173 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 30
+    flavorDimensions "default"
+    defaultConfig {
+        applicationId "com.picstar.picstarapp"
+        minSdkVersion 19
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //declared this For AuthO
+        manifestPlaceholders = [auth0Domain: "@string/com_auth0_domain", auth0Scheme: "demo"]
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+
+    productFlavors {
+        staging {
+            buildConfigField 'String', 'BASE_URL', '"http://ec2-52-25-57-141.us-west-2.compute.amazonaws.com:8089/picstar/"'
+            buildConfigField "boolean", "IS_PRODUCTION", "false"
+        }
+        production {
+            buildConfigField 'String', 'BASE_URL', '"http://ec2-52-25-57-141.us-west-2.compute.amazonaws.com:8089/picstar/"'
+            buildConfigField "boolean", "IS_PRODUCTION", "true"
+        }
+    }
+
+
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/license.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/notice.txt'
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/asl2.0'
+        exclude 'META-INF/rxjava.properties'
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "Picstar" + versionCode + ".apk"
+        }
+    }
+}
+
+
+repositories {
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+
+
+    implementation 'com.google.android.material:material:1.2.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+//Butterknife
+    implementation 'com.jakewharton:butterknife:10.2.3'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
+
+
+//AuthO
+    implementation 'com.auth0.android:auth0:1.30.0'
+
+    implementation 'com.auth0.android:lock:2.24.0'
+
+
+    // ID tokern decoder
+    implementation 'com.auth0.android:jwtdecode:2.0.0'
+
+    //Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:adapter-rxjava2:2.9.0'
+
+
+    //OK HTTP
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.9'
+    implementation 'io.reactivex:rxandroid:1.2.1'
+    implementation 'io.reactivex:rxjava:1.1.6'
+
+
+    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
+    implementation 'com.squareup.retrofit2:converter-simplexml:2.3.0'
+    //Moshi
+    implementation 'com.squareup.retrofit2:converter-moshi:2.0.2'
+    implementation 'com.squareup.moshi:moshi:1.5.0'
+    implementation 'com.squareup.moshi:moshi-adapters:1.5.0'
+    implementation 'com.github.achercasky.base-classes-library:initialclasseslibrary:0.1.12' // MVP
+
+    //viewpager2
+    implementation 'androidx.viewpager2:viewpager2:1.0.0-alpha01'
+
+//recyclerview
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+
+//Glide
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
+    implementation 'com.github.siyamed:android-shape-imageview:0.9.3@aar'
+
+
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+
+
+    //Cropview
+    implementation 'com.isseiaoki:simplecropview:1.1.8'
+    //dexture
+    implementation 'com.karumi:dexter:6.0.1'
+    //RETROPICKER
+    implementation'com.github.PauloLinhares09:RetroPicker:1.2.3-Beta1'
+
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
+
+    implementation 'jp.wasabeef:glide-transformations:4.0.0'
+
+
+
+
+//S3 bucket.....
+    implementation 'com.amazonaws:aws-android-sdk-core:2.6.+'
+   // implementation 'com.amazonaws:aws-android-sdk-cognito:2.2.+'
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
+  //  implementation 'com.amazonaws:aws-android-sdk-ddb:2.2.+'
+
+
+
+
+    //Stripe dependency
+    implementation 'com.stripe:stripe-android:14.2.1'
+    // sor network call
+    implementation 'com.squareup.okhttp3:okhttp:4.9.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+
+
+}

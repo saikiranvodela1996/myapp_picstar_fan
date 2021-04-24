@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+
+    <dimen name="tabs_margin">10sp</dimen>
+    <dimen name="medium_paading">8dp</dimen>
+    <dimen name="cam_btnheigth">40dp</dimen>
+    <dimen name="smallest_textsize">10sp</dimen>
+    <dimen name="camera_items_width">30dp</dimen>
+
+
+</resources>

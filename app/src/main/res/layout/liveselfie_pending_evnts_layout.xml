@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    android:layout_margin="10dp"
+    android:layout_height="match_parent">
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/liveselfie_pending_recycler_View"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+      />
+
+    <TextView
+        android:id="@+id/liveselfie_noListTv"
+        android:layout_width="match_parent"
+        android:textSize="18sp"
+        android:layout_height="match_parent"
+        android:fontFamily="@font/hind_regular"
+        android:gravity="center"
+        android:visibility="gone" />
+
+</LinearLayout>

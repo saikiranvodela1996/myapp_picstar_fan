@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/toolBar_bgcolor"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+
+    <ImageView
+        android:id="@+id/left_side_menu_option"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="7dp" />
+
+    <TextView
+        android:id="@+id/title_Tv"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:fontFamily="@font/hind_medium"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="20sp" />
+
+    <ImageView
+        android:id="@+id/search_option_btn"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="7dp" />
+
+
+</LinearLayout>

@@ -1,0 +1,161 @@
+<resources>
+    <string name="app_name">PicStar</string>
+    <string name="get_started_string">Create and Share Selfie With Celebrity \n you like in just few minutes</string>
+
+
+    <string name="com_auth0_client_id">K4aQGIftoSvf1OZVasx9emMjkFF5DCwa</string>
+    <string name="com_auth0_domain">dev-fwhugmus.us.auth0.com</string>
+
+
+    <string name="noList">Empty</string>
+    <string name="ok">OK</string>
+    <string name="autho_header_title">""</string>
+    <string name="pay_txt">Pay</string>
+    <string name="payment_txt">Payment</string>
+    <string name="get_started_txt">Get Started</string>
+    <string name="home_txt">Home</string>
+    <string name="profile_txt">Profile</string>
+    <string name="liveselfie_txt">Live Selfie</string>
+    <string name="photoSelfie_txt">Photo Selfie</string>
+    <string name="videomsg_txt">Video Message</string>
+    <string name="events_txt">Events</string>
+    <string name="event_date_txt">Event Date:</string>
+    <string name="created_date_txt">Created Date:</string>
+    <string name="photos_txt">Photos</string>
+    <string name="language_txt">Language</string>
+    <string name="myaccount_txt">My Account</string>
+    <string name="history_txt">History</string>
+    <string name="completed_txt">Completed</string>
+    <string name="viewless_txt">View Less</string>
+    <string name="videos_txt">Videos</string>
+    <string name="viewmore_txt">View More</string>
+    <string name="notifications_txt">Notifications</string>
+    <string name="privacypolicy_txt">Terms &amp; Privacy Policy </string>
+    <string name="contactus_txt">Contact us</string>
+    <string name="somethingwnt_wrong_txt">Something went wrong</string>
+    <string name="logout_txt">Logout</string>
+    <string name="settings_txt">Settings</string>
+    <string name="username_txt">username</string>
+    <string name="paylater_txt">Pay Later</string>
+    <string name="done_txt">Done</string>
+    <string name="paynow_txt">Pay Now</string>
+    <string name="ordersuccess_txt">Your order is successful</string>
+    <string name="merchandise_txt">Merchandise</string>
+    <string name="shareselfie_txt">You can share and save this Selfie</string>
+    <string name="plstry_again_txt">Please try again Later</string>
+    <string name="pendingrequest_txt">Pending Requests</string>
+    <string name="recommended_txt">Recommended</string>
+    <string name="name_txt">Name</string>
+    <string name="email_txt">Email</string>
+    <string name="gender_txt">Gender</string>
+    <string name="birthday_txt">Birthday</string>
+    <string name="phone_numb_txt">Phone number</string>
+    <string name="submit_txt">Submit</string>
+    <string name="newrequest_txt"> New Request</string>
+    <string name="yes_txt">Yes</string>
+    <string name="no_txt">No</string>
+    <string name="completedrequests_txt"> Completed Requests</string>
+    <string name="chooseoption_txt">Choose an option</string>
+    <string name="please_confirm_txt">Please confirm</string>
+    <string name="cam_Permision_deny_txt">Camera access is required to make full use of this app </string>
+    <string name="galleryandcamera_runtimepermission_alert_txt">Gallery and Camera access is required to make full use of this app </string>
+    <string name="gallery_runtimepermission_alert_txt">Gallery access is required to make full use of this app </string>
+    <string name="savephoto_txt"> Do you want to save photo?</string>
+    <string name="male_txt">Male</string>
+    <string name="female_txt">Female</string>
+    <string name="other_txt">Other</string>
+    <string name="requestfor_videomsg_txt"> Request for video message</string>
+    <string name="gallery_txt">Gallery</string>
+    <string name="camera_txt">Camera</string>
+    <string name="description_txt">Description</string>
+    <string name="eventname_txt">Event Name</string>
+    <string name="dateformat_hinttxt">DD/MM/YYYY</string>
+    <string name="cancel_txt">Cancel</string>
+    <string name="save_txt">Save</string>
+    <string name="fill_all_details_txt">Please fill all the details</string>
+    <string name="entername_alert_msg">Please enter your name</string>
+    <string name="select_gender_alertmsg"> Please select gender</string>
+    <string name="select_dob_alertmsg">Please select your date of birth</string>
+    <string name="entervalid_phonenumb_alertmsg"> Please enter valid phone number</string>
+    <string name="enter_eventname_txt">Please enter event name</string>
+
+    <string name="enter_descrptn_alertmsg"> Please enter Event description</string>
+
+    <string name="enter_date_alertmsg">Please enter date of event</string>
+
+    <string name="request_txt">Request</string>
+   <!-- <string name="navigation_drawer_open">Open Navigation Drawer</string>
+    <string name="navigation_drawer_close">Close Navigation Drawer</string>-->
+
+    <string name="accepted_txt">Accepted</string>
+    <string name="rejected_txt">Rejected</string>
+    <string name="price_txt">Price -</string>
+    <string name="expired_txt">Expired</string>
+    <string-array name="gender">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
+    <string name="selfiereq_txt">Selfie Request  ❯❯</string>
+    <string name="upcoming_txt">Upcoming</string>
+
+    <string name="pending_txt">Pending</string>
+    <string name="events">Events</string>
+    <string name="created_txt"> Created</string>
+    <string name="unableto_savephoto_txt">Unable to save photo. Please try again later.</string>
+    <string name="noInternet_txt">You are not connected to the Internet.</string>
+    <string name="selfie_requested_txt">Requested</string>
+    <string name="live_video_txt">Live Video</string>
+
+    <string name="requestfor_liveVideo"> Request for live video</string>
+    <string name="permission_rationale_camera">Camera permission is required to enable the camera</string>
+
+
+
+
+
+    <string name="logout_confirm_txt">Are you sure you want to Logout?</string>
+
+
+
+
+
+    <string name="permission_rationale_storage">Storage read/write permission is required to save photos</string>
+    <string name="permission_rationale_record_audio">Microphone permission is required to record video with audio, as well as use the \"Audio control\" options</string>
+    <string name="permission_rationale_location">Location permission is required for geotagging (storing location data in
+        photos and videos). Location permission is also required for connecting to Bluetooth LE remote control devices.</string>
+    <string name="permission_rationale_title">Permission required</string>
+    <string name="metres_abbreviation">m</string> <!-- symbol short for metres -->
+    <string name="feet_abbreviation">ft</string> <!-- symbol short for feet -->
+    <string name="magnetic_accuracy_info">Your device\'s compass needs calibrating to improve its accuracy. This can be done by moving your device in a figure of 8 motion.\n\nCurrent accuracy:</string>
+    <string name="accuracy_unreliable">Unreliable</string>
+    <string name="accuracy_low">Low</string>
+    <string name="accuracy_medium">Medium</string>
+    <string name="accuracy_high">High</string>
+    <string name="accuracy_unknown">Unknown</string>
+    <string name="magnetic_accuracy_title">Compass direction</string>
+    <string name="finish_panorama">Finish panorama</string>
+    <string name="cancel_panorama">Cancel panorama</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="anti_banding_auto">Auto</string>
+    <string name="anti_banding_50hz">50Hz</string>
+    <string name="anti_banding_60hz">60Hz</string>
+    <string name="anti_banding_off">Off</string>
+    <string name="noise_reduction_mode_default">Default</string>
+    <string name="noise_reduction_mode_off">Off</string>
+    <string name="noise_reduction_mode_minimal">Minimal</string>
+    <string name="noise_reduction_mode_fast">Fast</string>
+    <string name="noise_reduction_mode_high_quality">High Quality</string>
+    <string name="dont_show_again">Don\'t show again</string>
+    <string name="focus_distance">Focus distance</string>
+    <string name="focus_bracketing_source_distance">Focus bracketing source distance</string>
+    <string name="focus_bracketing_target_distance">Focus bracketing target distance</string>
+    <string name="no_burst">no burst</string> <!-- string for burst mode not being supported for a resolution -->
+    <string name="infinite">Infinite</string>
+
+
+
+
+
+
+</resources>

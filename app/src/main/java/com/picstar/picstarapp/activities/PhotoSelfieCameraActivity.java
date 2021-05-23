@@ -70,6 +70,7 @@ import com.picstar.picstarapp.campkg.others.SpeechControl;
 import com.picstar.picstarapp.campkg.others.StorageUtils;
 import com.picstar.picstarapp.campkg.others.TextFormatter;
 import com.picstar.picstarapp.campkg.preview.Preview;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.utils.PSRConstants;
 import com.picstar.picstarapp.utils.PSR_Utils;
 
@@ -385,6 +386,11 @@ public class PhotoSelfieCameraActivity extends Activity implements View.OnTouchL
     }
 
 
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
     public String getPhotoSelfieCost() {
         return photoSelfieCost;
     }

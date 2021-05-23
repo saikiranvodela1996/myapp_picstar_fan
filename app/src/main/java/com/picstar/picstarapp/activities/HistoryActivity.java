@@ -1,5 +1,10 @@
 package com.picstar.picstarapp.activities;
 
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -15,6 +20,7 @@ import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.fragments.CompletedEventsHistoryFragment;
 import com.picstar.picstarapp.fragments.UpComingEventsFragment;
 import com.picstar.picstarapp.fragments.PendingHistoryFragment;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,6 +61,8 @@ public class HistoryActivity extends BaseActivity {
                 finish();
             }
         });
+
+
 
 
         tabLayout.addTab(tabLayout.newTab().setText(getResources().getString(R.string.upcoming_txt)).setTag(0));
@@ -109,6 +117,12 @@ public class HistoryActivity extends BaseActivity {
 
     }
 
+
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
 
 
 }

@@ -137,7 +137,7 @@ public class PendingLiveSelfieReqAdapter extends RecyclerView.Adapter<PendingLiv
         holder.selfieReq.setTextColor(ContextCompat.getColor(activity, R.color.toolBar_bgcolor));
 
 
-    /*    if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
+        if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
 
             holder.selfieImgView.setVisibility(View.VISIBLE);
             holder.progressBar.setVisibility(View.VISIBLE);
@@ -157,7 +157,7 @@ public class PendingLiveSelfieReqAdapter extends RecyclerView.Adapter<PendingLiv
                         }
                     })
                     .into(holder.selfieImgView);
-        }*/
+        }
 
         if (info.getFilePath() == null || !info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
             holder.payNowBtn.setVisibility(View.VISIBLE);

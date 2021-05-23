@@ -1,23 +1,37 @@
 package com.picstar.picstarapp.adapters;
 
 import android.app.Activity;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.github.siyamed.shapeimageview.RoundedImageView;
+import com.google.android.material.imageview.ShapeableImageView;
 import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.mvp.models.ViewTypes;
 
 import com.picstar.picstarapp.mvp.models.pendingVideoMsgs.Info;
 import com.picstar.picstarapp.mvp.views.VideoMsgsPendingView;
 import com.picstar.picstarapp.utils.PSRConstants;
+import com.picstar.picstarapp.utils.PSR_Utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,6 +42,9 @@ import java.util.TimeZone;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import jp.wasabeef.glide.transformations.BlurTransformation;
+
+import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
 
 public class PendingVideoMsgsAdapter extends RecyclerView.Adapter<PendingVideoMsgsAdapter.ViewHolder> {
 
@@ -100,6 +117,14 @@ public class PendingVideoMsgsAdapter extends RecyclerView.Adapter<PendingVideoMs
             e.printStackTrace();
         }
 
+        holder.videoLayout.setVisibility(View.GONE);
+        holder.videoImgV.setVisibility(View.GONE);
+        holder.progressBar.setVisibility(View.GONE);
+        holder.playBtn.setVisibility(View.GONE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            holder.videoImgV.setForeground(null);
+        }
+
         holder.eventNameTv.setText(info.getVideoEvent().getVideoEventName());
         holder.eventDescriptnTv.setText(info.getVideoEvent().getVideoEventDesc());
 
@@ -115,11 +140,42 @@ public class PendingVideoMsgsAdapter extends RecyclerView.Adapter<PendingVideoMs
 
 
         if (isFromClosedRequest) {
-            holder.payNowBtn.setVisibility(View.GONE);
+
+            if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty() && info.getStatus().toLowerCase().contains("completed")) {
+                holder.payNowBtn.setText(activity.getResources().getString(R.string.share_txt));
+            } else {
+                holder.payNowBtn.setVisibility(View.GONE);
+            }
+
             holder.statusTv.setText(info.getStatus());
         } else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
             holder.payNowBtn.setVisibility(View.GONE);
-            holder.statusTv.setText(info.getStatus());
+        }
+        holder.statusTv.setText(info.getStatus());
+        if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
+            holder.videoLayout.setVisibility(View.VISIBLE);
+            holder.videoImgV.setVisibility(View.VISIBLE);
+            holder.progressBar.setVisibility(View.VISIBLE);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                holder.videoImgV.setForeground(activity.getResources().getDrawable(R.drawable.ic_foreground_img));
+            }
+            Glide.with(activity).load(info.getThumbnail())
+                    .placeholder(activity.getResources().getDrawable(R.drawable.ic_videopholder))
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            holder.progressBar.setVisibility(View.GONE);
+                            holder.playBtn.setVisibility(View.VISIBLE);
+                            return false;
+                        }
+                    })
+                    .into(holder.videoImgV);
         }
 
     }
@@ -146,12 +202,17 @@ public class PendingVideoMsgsAdapter extends RecyclerView.Adapter<PendingVideoMs
         TextView eventDescriptnTv;
         @BindView(R.id.parent_layout)
         LinearLayout parentLayout;
-
+        @BindView(R.id.video_layout)
+        FrameLayout videoLayout;
 
         @BindView(R.id.extra_layout)
         LinearLayout extraLayout;
-
-
+        @BindView(R.id.video_img_v)
+        RoundedImageView videoImgV;
+        @BindView(R.id.play_btn)
+        ImageView playBtn;
+        @BindView(R.id.progress_bar)
+        ProgressBar progressBar;
         @BindView(R.id.request_status_tv)
         TextView requestStatusTv;
 
@@ -165,6 +226,23 @@ public class PendingVideoMsgsAdapter extends RecyclerView.Adapter<PendingVideoMs
             Info info = pendingvideoMsgs.get(getAdapterPosition());
             videoMsgsPendingView.onClickPayNow(info);
         }
+
+        @OnClick(R.id.video_layout)
+        void onClickVideo(View view) {
+            Info info = pendingvideoMsgs.get(getAdapterPosition());
+            if (isFromClosedRequest) {
+                if (info.getStatus().toLowerCase().contains("completed")) {
+                    videoMsgsPendingView.onClickVideo(info.getFilePath().toString());
+                }
+
+            } else if (info.getStatus().toLowerCase().contains("success")) {
+                videoMsgsPendingView.onClickVideo(info.getFilePath().toString());
+            } else {
+                PSR_Utils.showToast(activity, activity.getResources().getString(R.string.doPayment_alert));
+            }
+        }
+
+
     }
 
 

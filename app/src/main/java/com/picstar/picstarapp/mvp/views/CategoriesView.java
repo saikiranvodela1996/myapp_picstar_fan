@@ -10,6 +10,10 @@ public interface CategoriesView extends BaseMvpView {
 
     void onGettingList(CategoriesListResponse response);
 
+
+
+
+    void userBlocked(String  response);
     void onFailure(CategoriesListResponse response);
 
     void onGettingCelebritiesList(CelebritiesByIdResponse response);

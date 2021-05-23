@@ -17,6 +17,7 @@ import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.activities.CelebrityDetailsActivity;
 import com.picstar.picstarapp.activities.LiveSelfieCameraActivity;
 import com.picstar.picstarapp.activities.PaymentActivity;
+import com.picstar.picstarapp.activities.VideoPlayerActivity;
 import com.picstar.picstarapp.adapters.MyHistoryAdapter;
 import com.picstar.picstarapp.callbacks.OnClickPhotoSelfieHistory;
 import com.picstar.picstarapp.helpers.ProgressBarViewHolder;
@@ -33,7 +34,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class PendingHistoryFragment extends BaseFragment implements PhotoSelfieHistoryView, OnClickPhotoSelfieHistory {
+public class PendingHistoryFragment extends BaseFragment implements PhotoSelfieHistoryView, OnClickPhotoSelfieHistory, PSR_Utils.OnSingleBtnDialogClick {
 
 
     @BindView(R.id.photoselfie_historyRV)
@@ -112,7 +113,7 @@ public class PendingHistoryFragment extends BaseFragment implements PhotoSelfieH
                 adapter.notifyDataSetChanged();
             }
 
-            photoSelfieHistoryPresenter.getPendingEventsHistory(PSR_Utils.getHeader(psr_prefsManager), PSRConstants.historyPendingKey, psr_prefsManager.get(PSRConstants.USERID), currentPage);
+            photoSelfieHistoryPresenter.getPendingEventsHistory(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE),PSR_Utils.getHeader(psr_prefsManager), PSRConstants.historyPendingKey, psr_prefsManager.get(PSRConstants.USERID), currentPage);
         } else {
             PSR_Utils.showNoNetworkAlert(getActivity());
         }
@@ -136,6 +137,12 @@ public class PendingHistoryFragment extends BaseFragment implements PhotoSelfieH
             noListTv.setVisibility(View.VISIBLE);
             noListTv.setText(response.getMessage().toString());
         }
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(),msg,null,this);
     }
 
     @Override
@@ -191,6 +198,16 @@ public class PendingHistoryFragment extends BaseFragment implements PhotoSelfieH
         PSR_Utils.navigatingAccordingly(getActivity(),info);
     }
 
+    @Override
+    public void onVideoClicked(String filePath) {
+        Intent intent = new Intent(getActivity(), VideoPlayerActivity.class);
+        intent.putExtra(PSRConstants.VIDEOURL, filePath);
+        startActivity(intent);
+    }
 
 
+    @Override
+    public void onClickOk() {
+PSR_Utils.navigateToContacUsScreen(getActivity());
+    }
 }

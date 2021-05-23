@@ -47,15 +47,17 @@ public interface PSRApi {
     Observable<LoginResponse> doLogin(@Body LoginRequest loginRequest);
 
     @GET("getAllCategories")
-    Observable<CategoriesListResponse> doGetCategoriesList();
+    Observable<CategoriesListResponse> doGetCategoriesList(@Query("user_id") String userID );
 
 
+   /* @GET("getCelebritiesByCategory?per_page=10")
+    Observable<CelebritiesByIdResponse> doGetCelebritiesById(@Query("page") int page, @Query("category_id") int param1);*/
+
+    @GET(" getCelebritiesByCategoryForUser?per_page=10")
+    Observable<CelebritiesByIdResponse> doGetCelebritiesById(@Query("page") int page, @Query("category_id") int param1, @Query("user_id") String param2);
+/*
     @GET("getCelebritiesByCategory?per_page=10")
-    Observable<CelebritiesByIdResponse> doGetCelebritiesById(@Query("page") int page, @Query("category_id") int param1);
-
-
-    @GET("getCelebritiesByCategory?per_page=10")
-    Observable<CelebritiesByIdResponse> doGetMyFav(@Query("page") int page, @Query("user_id") String param1);
+    Observable<CelebritiesByIdResponse> doGetMyFav(@Query("page") int page, @Query("user_id") String param1);*/
 
 
     @POST("addCelebrityToMyFavourites")

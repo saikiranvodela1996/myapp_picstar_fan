@@ -1,5 +1,6 @@
 package com.picstar.picstarapp.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -14,6 +15,7 @@ import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.fragments.VideoMsgCompltdRequestsFragment;
 import com.picstar.picstarapp.fragments.VideoMsgNewRequestFragment;
 import com.picstar.picstarapp.fragments.VideoMsgPendingRequestsFragmnt;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.utils.PSRConstants;
 
 import butterknife.BindView;
@@ -119,6 +121,11 @@ public class VideoMessageActivity extends BaseActivity {
 
     }
 
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
 
     @OnClick(R.id.left_side_menu_option)
     void onClickBack(View view) {

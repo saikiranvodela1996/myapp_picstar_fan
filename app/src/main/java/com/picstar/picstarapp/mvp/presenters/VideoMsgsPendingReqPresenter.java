@@ -11,24 +11,22 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class VideoMsgsPendingReqPresenter  extends BasePresenter<VideoMsgsPendingView> {
+public class VideoMsgsPendingReqPresenter extends BasePresenter<VideoMsgsPendingView> {
 
 
-
-
-    public void getPendingVideoMsgs(String header, VideoMsgsPendingReq request) {
-        Disposable disposable = PSRService.getInstance(header).dogetPendingVideoMsgs(request)
+    public void getPendingVideoMsgs(String lang, String header, VideoMsgsPendingReq request) {
+        Disposable disposable = PSRService.getInstance(lang, header).dogetPendingVideoMsgs(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<PendingVideoMsgsResponse>(){
+                .subscribeWith(new CustomDisposableObserver<PendingVideoMsgsResponse>() {
                     @Override
-                    public void onNext(PendingVideoMsgsResponse response ) {
+                    public void onNext(PendingVideoMsgsResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().gettingPendingorcompltdVideoMsgsSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().gettingPendingorcompltdVideoMsgsFailure(response);
                             }
                         }
@@ -48,6 +46,7 @@ public class VideoMsgsPendingReqPresenter  extends BasePresenter<VideoMsgsPendin
                             getMvpView().onSessionExpired();
                         }
                     }
+
                     @Override
                     public void onServerError() {
                         if (getMvpView() != null) {
@@ -67,21 +66,6 @@ public class VideoMsgsPendingReqPresenter  extends BasePresenter<VideoMsgsPendin
         compositeSubscription.add(disposable);
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

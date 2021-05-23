@@ -1,5 +1,6 @@
 package com.picstar.picstarapp.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -21,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.github.siyamed.shapeimageview.ShaderImageView;
 import com.picstar.picstarapp.R;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.mvp.models.celebrities.Info;
 import com.picstar.picstarapp.mvp.models.celebrities.ServicesOffering;
 import com.picstar.picstarapp.utils.PSRConstants;
@@ -142,6 +144,11 @@ public class CelebrityDetailsActivity extends BaseActivity {
 
     }
 
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
     @Override
     protected void onStart() {
         super.onStart();

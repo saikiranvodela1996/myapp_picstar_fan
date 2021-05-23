@@ -32,7 +32,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class LiveVideoPendingRequestsFragmnt extends BaseFragment implements LiveVideoPendingView {
+public class LiveVideoPendingRequestsFragmnt extends BaseFragment implements LiveVideoPendingView, PSR_Utils.OnSingleBtnDialogClick {
 
     @BindView(R.id.recycler_View)
     RecyclerView recyclerView;
@@ -50,6 +50,7 @@ public class LiveVideoPendingRequestsFragmnt extends BaseFragment implements Liv
     private boolean isAllPagesShown = false;
     private int currentPage = 1;
     List<Info> pendinglivevideos;
+
 
     class FooterViewHolder {
         @BindView(R.id.progressBar)
@@ -79,7 +80,7 @@ public class LiveVideoPendingRequestsFragmnt extends BaseFragment implements Liv
         pendingLiveVideoReqPresenter.attachMvpView(this);
 
         footerViewHolder = new FooterViewHolder(footerView);
-        pendingLiveVideosAdapter = new PendingLiveVideosAdapter(getActivity(), pendinglivevideos, false,this);
+        pendingLiveVideosAdapter = new PendingLiveVideosAdapter(getActivity(), pendinglivevideos, false, this);
         recyclerView.setAdapter(pendingLiveVideosAdapter);
 
         pendingLiveVideosAdapter.setFooterView(footerView);
@@ -125,7 +126,7 @@ public class LiveVideoPendingRequestsFragmnt extends BaseFragment implements Liv
         liveVideoPendingReq.setCelebrityId(celebrityId);
         liveVideoPendingReq.setStatus(PSRConstants.PENDING);
         liveVideoPendingReq.setPage(currentPage);
-        pendingLiveVideoReqPresenter.getPendingVideoMsgs(PSR_Utils.getHeader(psr_prefsManager), liveVideoPendingReq);
+        pendingLiveVideoReqPresenter.getPendingVideoMsgs(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), liveVideoPendingReq);
     }
 
 
@@ -137,7 +138,7 @@ public class LiveVideoPendingRequestsFragmnt extends BaseFragment implements Liv
             liveVideoPendingReq.setCelebrityId(celebrityId);
             liveVideoPendingReq.setStatus(PSRConstants.PENDING);
             liveVideoPendingReq.setPage(1);
-            pendingLiveVideoReqPresenter.getPendingVideoMsgs(PSR_Utils.getHeader(psr_prefsManager), liveVideoPendingReq);
+            pendingLiveVideoReqPresenter.getPendingVideoMsgs(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), liveVideoPendingReq);
         } else {
             PSR_Utils.showNoNetworkAlert(getActivity());
         }
@@ -165,6 +166,16 @@ public class LiveVideoPendingRequestsFragmnt extends BaseFragment implements Liv
         }
     }
 
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(), msg, null, this);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
+    }
     @Override
     public void gettingPendingorcompltdLiveVideoFailure(PendingLiveVideoResponse response) {
         PSR_Utils.hideProgressDialog();

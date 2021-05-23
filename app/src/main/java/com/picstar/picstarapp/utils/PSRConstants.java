@@ -28,7 +28,9 @@ public interface PSRConstants {
     String LIVESELFIECOST = "liveselfieCost";
     String SELFIECOST = "selfieCost";
     String SERVICECOST="serviceCost";
-
+    String SELECTED_LANGUAGE = "Locale.Helper.Selected.Language";
+    String IMAGE_FILE_EXTENSION = ".jpeg";
+    String DATE_TIME_FORMAT_IN_FILE_NAMES = "yyyyMMdd_HHmmss";
     String ISCAMEFROMHISTORY="isCameFromHistory";
     String PHOTOSELFIECOST = "photoSelfieCost";
     String BUCKETNAME="bucketName";
@@ -43,10 +45,18 @@ public interface PSRConstants {
     String ISLOGGEDIN = "isLoggedIn";
     String EVENTID="eventId";
     String SELECTED_CELEBRITYID = "selectedCelebrity";
+    String VIDEOURL = "videoUrl";
+    String PRIVACY_POLICY_URL = "privacy_policy_url";
+    String CONTACT_US_PHONE_NO = "contact_us_phone_no";
+    String CONTACT_US_EMAIL = "contact_us_email";
+    String CONTACT_US_ADDRESS = "contact_us_address";
+
+
+
+
 
     String PHOTOSELFIEBUCKETNAME = "picstar/photo_selfies";
     String PROFILEPICS = "picstar/profile_pics";
-
     String LIVESELFIESBUCKETNAME = "picstar/live_selfies";
 
     String PENDING = "PENDING";

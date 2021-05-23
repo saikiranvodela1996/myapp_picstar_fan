@@ -8,6 +8,11 @@ public interface VideoMsgsPendingView extends BaseMvpView {
 
     void gettingPendingorcompltdVideoMsgsSuccess(PendingVideoMsgsResponse response);
 
+    void userBlocked(String msg);
+
     void gettingPendingorcompltdVideoMsgsFailure(PendingVideoMsgsResponse response);
+
     void onClickPayNow(Info info);
+
+    void onClickVideo(String videoUrl);
 }

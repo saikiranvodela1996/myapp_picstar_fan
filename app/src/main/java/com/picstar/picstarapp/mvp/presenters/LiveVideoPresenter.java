@@ -16,19 +16,19 @@ import io.reactivex.schedulers.Schedulers;
 
 public class LiveVideoPresenter extends BasePresenter<LiveVideoEventView> {
 
-    public void liveVideoRequest(String header, LiveVideoRequest request) {
-        Disposable disposable = PSRService.getInstance(header).liveVideoRequest(request)
+    public void liveVideoRequest(String laang, String header, LiveVideoRequest request) {
+        Disposable disposable = PSRService.getInstance(laang, header).liveVideoRequest(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<LiveVideoResponse>(){
+                .subscribeWith(new CustomDisposableObserver<LiveVideoResponse>() {
                     @Override
-                    public void onNext(LiveVideoResponse response ) {
+                    public void onNext(LiveVideoResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onCreatingvideoEvntSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage());
+                            } else {
                                 getMvpView().onCreatingvideoEvntFailure(response);
                             }
                         }
@@ -40,6 +40,7 @@ public class LiveVideoPresenter extends BasePresenter<LiveVideoEventView> {
                             getMvpView().onSessionExpired();
                         }
                     }
+
                     @Override
                     public void onConnectionLost() {
                         if (getMvpView() != null) {
@@ -67,23 +68,24 @@ public class LiveVideoPresenter extends BasePresenter<LiveVideoEventView> {
 
     }
 
-    public void doCreateLiveVideoRequest(String header, CreateServiceReq request) {
-        Disposable disposable = PSRService.getInstance(header).doCreateRequest(request)
+    public void doCreateLiveVideoRequest(String lang, String header, CreateServiceReq request) {
+        Disposable disposable = PSRService.getInstance(lang, header).doCreateRequest(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>(){
+                .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>() {
                     @Override
-                    public void onNext(CreateServiceResponse response ) {
+                    public void onNext(CreateServiceResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onCreatingServiceReqSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage());
+                            } else {
                                 getMvpView().onCreatingServiceReqFailure(response);
                             }
                         }
                     }
+
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {

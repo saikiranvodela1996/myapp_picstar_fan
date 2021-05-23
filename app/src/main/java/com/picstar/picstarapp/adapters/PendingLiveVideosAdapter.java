@@ -102,6 +102,14 @@ public class PendingLiveVideosAdapter extends RecyclerView.Adapter<PendingLiveVi
         holder.eventNameTv.setText(info.getLiveVideo().getLiveVideoName());
         holder.eventDescriptnTv.setText(info.getLiveVideo().getLiveVideoDesc());
 
+
+
+
+
+
+
+
+
         if (isFromClosedRequest) {
             if (info.getLiveVideo().getLiveVideoStatus() == 8) {
                 holder.requestStatusTv.setText(activity.getResources().getString(R.string.completed_txt));

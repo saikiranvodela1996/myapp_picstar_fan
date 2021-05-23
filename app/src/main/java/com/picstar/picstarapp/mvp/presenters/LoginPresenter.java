@@ -13,21 +13,21 @@ import io.reactivex.schedulers.Schedulers;
 
 public class LoginPresenter extends BasePresenter<LoginView> {
 
-    public void doLogin(String header, LoginRequest loginRequest) {
-        Disposable disposable = PSRService.getInstance(header).doLogin(loginRequest)
+    public void doLogin(String lang, String header, LoginRequest loginRequest) {
+        Disposable disposable = PSRService.getInstance(lang, header).doLogin(loginRequest)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new CustomDisposableObserver<LoginResponse>() {
                     @Override
                     public void onNext(LoginResponse loginResponse) {
                         if (getMvpView() != null) {
-                           if( loginResponse.getStatus().equals("SUCCESS"))
-                            {
+                            if (loginResponse.getStatus().equals("SUCCESS")) {
                                 getMvpView().onLoginSuccess(loginResponse);
-                            }else
-                           {
-                               getMvpView().onLoginFailed(loginResponse);
-                           }
+                            } else if (loginResponse.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(loginResponse);
+                            } else {
+                                getMvpView().onLoginFailed(loginResponse);
+                            }
                         }
                     }
 
@@ -45,6 +45,7 @@ public class LoginPresenter extends BasePresenter<LoginView> {
                             getMvpView().onSessionExpired();
                         }
                     }
+
                     @Override
                     public void onServerError() {
                         if (getMvpView() != null) {

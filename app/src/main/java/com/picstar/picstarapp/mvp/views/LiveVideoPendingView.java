@@ -8,6 +8,9 @@ public interface LiveVideoPendingView extends BaseMvpView {
 
     void gettingPendingorcompltdLiveVideoSuccess(PendingLiveVideoResponse response);
 
+    void userBlocked(String msg);
+
     void gettingPendingorcompltdLiveVideoFailure(PendingLiveVideoResponse response);
+
     void onClickPaynow(Info info);
 }

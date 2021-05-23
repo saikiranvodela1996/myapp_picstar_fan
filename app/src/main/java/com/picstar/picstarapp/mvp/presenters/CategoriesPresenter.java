@@ -20,80 +20,28 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 
-
 public class CategoriesPresenter extends BasePresenter<CategoriesView> {
 
 
-    public void getCategoriesList(String header) {
-        Disposable disposable = PSRService.getInstance(header).doGetCategoriesList()
+    public void getCategoriesList(String lang, String header, String userID) {
+        Disposable disposable = PSRService.getInstance(lang, header).doGetCategoriesList(userID)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CategoriesListResponse>(){
+                .subscribeWith(new CustomDisposableObserver<CategoriesListResponse>() {
                     @Override
                     public void onNext(CategoriesListResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onGettingList(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage());
+                            } else {
                                 getMvpView().onFailure(response);
                             }
                         }
                     }
 
-                    @Override
-                    public void onSessionExpired() {
-                        if (getMvpView() != null) {
-                            getMvpView().onSessionExpired();
-                        }
-                    }
-                    @Override
-                    public void onConnectionLost() {
-                        if (getMvpView() != null) {
-                            getMvpView().onNoInternetConnection();
-                        }
-                    }
-
-
-                    @Override
-                    public void onServerError() {
-                        if (getMvpView() != null) {
-                            getMvpView().onServerError();
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable t) {
-                        if (getMvpView() != null) {
-                            getMvpView().onError(t);
-                        }
-                    }
-                });
-
-
-       compositeSubscription.add(disposable);
-
-    }
-
-
-    public void getCelebritiesById(String header, CelebritiesByIdRequest request) {
-        Disposable disposable = PSRService.getInstance(header).doGetCelebritiesById(request.getPage(),request.getCategoryId())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CelebritiesByIdResponse >(){
-                    @Override
-                    public void onNext(CelebritiesByIdResponse response ) {
-                        if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
-                                getMvpView().onGettingCelebritiesList(response);
-                            }else
-                            {
-                                getMvpView().onGettingCelebritiesFailure(response);
-                            }
-                        }
-                    }
+                    //USER_BLOCKED
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {
@@ -129,23 +77,78 @@ public class CategoriesPresenter extends BasePresenter<CategoriesView> {
 
     }
 
-    public void getRecommCelebrities(String header,CelebritiesByIdRequest recommendRequest) {
-        Disposable disposable = PSRService.getInstance(header).doGetRecomCelebritiesById(recommendRequest)
+
+    public void getCelebritiesById(String lang, String header, CelebritiesByIdRequest request) {
+        Disposable disposable = PSRService.getInstance(lang, header).doGetCelebritiesById(request.getPage(), request.getCategoryId(), request.getUserId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CelebritiesByIdResponse>(){
+                .subscribeWith(new CustomDisposableObserver<CelebritiesByIdResponse>() {
                     @Override
-                    public void onNext(CelebritiesByIdResponse response ) {
+                    public void onNext(CelebritiesByIdResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
+                                getMvpView().onGettingCelebritiesList(response);
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
+                                getMvpView().onGettingCelebritiesFailure(response);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onSessionExpired() {
+                        if (getMvpView() != null) {
+                            getMvpView().onSessionExpired();
+                        }
+                    }
+
+                    @Override
+                    public void onConnectionLost() {
+                        if (getMvpView() != null) {
+                            getMvpView().onNoInternetConnection();
+                        }
+                    }
+
+
+                    @Override
+                    public void onServerError() {
+                        if (getMvpView() != null) {
+                            getMvpView().onServerError();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        if (getMvpView() != null) {
+                            getMvpView().onError(t);
+                        }
+                    }
+                });
+
+
+        compositeSubscription.add(disposable);
+
+    }
+
+    public void getRecommCelebrities(String lang, String header, CelebritiesByIdRequest recommendRequest) {
+        Disposable disposable = PSRService.getInstance(lang, header).doGetRecomCelebritiesById(recommendRequest)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new CustomDisposableObserver<CelebritiesByIdResponse>() {
+                    @Override
+                    public void onNext(CelebritiesByIdResponse response) {
+                        if (getMvpView() != null) {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onGettingRecommCelebritiesList(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onGettimgRecommCelebritiesFailure(response);
                             }
                         }
                     }
+
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {
@@ -180,20 +183,20 @@ public class CategoriesPresenter extends BasePresenter<CategoriesView> {
         compositeSubscription.add(disposable);
 
     }
-
-    public void getMyFavCelebrities(String header, CelebritiesByIdRequest request) {
-        Disposable disposable = PSRService.getInstance(header).doGetMyFav(request.getPage(),request.getUserId())
+/*
+    public void getMyFavCelebrities(String lang, String header, CelebritiesByIdRequest request) {
+        Disposable disposable = PSRService.getInstance(lang, header).doGetMyFav(request.getPage(), request.getUserId())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CelebritiesByIdResponse >(){
+                .subscribeWith(new CustomDisposableObserver<CelebritiesByIdResponse>() {
                     @Override
-                    public void onNext(CelebritiesByIdResponse response ) {
+                    public void onNext(CelebritiesByIdResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onGettingCelebritiesList(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onGettingCelebritiesFailure(response);
                             }
                         }
@@ -205,6 +208,7 @@ public class CategoriesPresenter extends BasePresenter<CategoriesView> {
                             getMvpView().onSessionExpired();
                         }
                     }
+
                     @Override
                     public void onConnectionLost() {
                         if (getMvpView() != null) {
@@ -231,25 +235,26 @@ public class CategoriesPresenter extends BasePresenter<CategoriesView> {
 
         compositeSubscription.add(disposable);
 
-    }
+    }*/
 
-    public void addToMyFavs(String header, AddtoFavRequest request,String celebrityID) {
-        Disposable disposable = PSRService.getInstance(header).doAddToMyFavs(request)
+    public void addToMyFavs(String lang, String header, AddtoFavRequest request, String celebrityID) {
+        Disposable disposable = PSRService.getInstance(lang, header).doAddToMyFavs(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<AddtoFavResponse>(){
+                .subscribeWith(new CustomDisposableObserver<AddtoFavResponse>() {
                     @Override
-                    public void onNext(AddtoFavResponse response ) {
+                    public void onNext(AddtoFavResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
-                                getMvpView().onAddingToFavsSuccess(response,celebrityID);
-                            }else
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
+                                getMvpView().onAddingToFavsSuccess(response, celebrityID);
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onAddingToFavsFailure(response);
                             }
                         }
                     }
+
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {
@@ -285,23 +290,24 @@ public class CategoriesPresenter extends BasePresenter<CategoriesView> {
 
     }
 
-    public void searchForCelebrity(String header,int categoryId,int page,String searchString,String userId  ) {
-        Disposable disposable = PSRService.getInstance(header).doSearchForCelebrity(categoryId,page,searchString,userId)
+    public void searchForCelebrity(String lang, String header, int categoryId, int page, String searchString, String userId) {
+        Disposable disposable = PSRService.getInstance(lang, header).doSearchForCelebrity(categoryId, page, searchString, userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CelebritiesByIdResponse>(){
+                .subscribeWith(new CustomDisposableObserver<CelebritiesByIdResponse>() {
                     @Override
-                    public void onNext(CelebritiesByIdResponse response ) {
+                    public void onNext(CelebritiesByIdResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onGettingSearchListSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onGettingSearchListFailure(response);
                             }
                         }
                     }
+
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {
@@ -337,7 +343,7 @@ public class CategoriesPresenter extends BasePresenter<CategoriesView> {
 
     }
 
-    public void cancelRequests(){
+    public void cancelRequests() {
         compositeSubscription.clear();
     }
 

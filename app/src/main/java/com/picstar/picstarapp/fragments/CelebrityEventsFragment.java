@@ -32,7 +32,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class CelebrityEventsFragment extends BaseFragment implements CelebrityEventsView {
+public class CelebrityEventsFragment extends BaseFragment implements CelebrityEventsView, PSR_Utils.OnSingleBtnDialogClick {
 
 
     @BindView(R.id.recycler_view)
@@ -132,7 +132,7 @@ public class CelebrityEventsFragment extends BaseFragment implements CelebrityEv
         celebrityEventsRequest.setUser_id(psr_prefsManager.get(PSRConstants.USERID));
         celebrityEventsRequest.setCelebrity_id(celebrityId);
         celebrityEventsRequest.setPage(currentPage);
-        celebrityEventsPresenter.getCelebrityEvents(PSR_Utils.getHeader(psr_prefsManager), celebrityEventsRequest);
+        celebrityEventsPresenter.getCelebrityEvents(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE),PSR_Utils.getHeader(psr_prefsManager), celebrityEventsRequest);
 
     }
 
@@ -145,7 +145,7 @@ public class CelebrityEventsFragment extends BaseFragment implements CelebrityEv
             createServiceReq.setUserId(psr_prefsManager.get(PSRConstants.USERID));
             createServiceReq.setServiceRequestTypeId(Integer.parseInt(PSRConstants.LIVESELFIE_SERVICE_REQ_ID));
             createServiceReq.setEventId(item.getEventId());
-            celebrityEventsPresenter.requestForLiveSelfie(PSR_Utils.getHeader(psr_prefsManager), createServiceReq, item.getEventId());
+            celebrityEventsPresenter.requestForLiveSelfie(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE),PSR_Utils.getHeader(psr_prefsManager), createServiceReq, item.getEventId());
         } else {
             PSR_Utils.showNoNetworkAlert(getActivity());
         }
@@ -173,6 +173,12 @@ public class CelebrityEventsFragment extends BaseFragment implements CelebrityEv
                 noEventsTv.setText(response.getMessage().toString());
             }
         }
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(),msg,null,this);
     }
 
     @Override
@@ -235,9 +241,13 @@ public class CelebrityEventsFragment extends BaseFragment implements CelebrityEv
         PSR_Utils.showAlert(getActivity(),getResources().getString(R.string.somethingwnt_wrong_txt),null);
     }
 
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
+    }
 
 
-     class ProgressBarViewHolder {
+    class ProgressBarViewHolder {
         @BindView(R.id.progressBar)
         ProgressBar progressBar;
 

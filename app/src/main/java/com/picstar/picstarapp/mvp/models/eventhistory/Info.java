@@ -18,7 +18,18 @@ private Integer serviceRequestTypeId;
 private String status;
 @Json(name = "file_path")
 private Object filePath;
-@Json(name = "event_id")
+@Json(name = "thumbnail_path")
+private Object thumbnail;
+
+    public Object getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(Object thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    @Json(name = "event_id")
 private Integer eventId;
 @Json(name = "photo_id")
 private Integer photoId;

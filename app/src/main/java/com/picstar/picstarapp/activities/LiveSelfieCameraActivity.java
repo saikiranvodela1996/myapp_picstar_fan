@@ -54,6 +54,7 @@ import androidx.annotation.RequiresApi;
 import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.campkg.cameracontroller.CameraController;
 import com.picstar.picstarapp.campkg.cameracontroller.CameraControllerManager2;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.liveselfiecam.MainUI;
 import com.picstar.picstarapp.liveselfiecam.MagneticSensor;
 import com.picstar.picstarapp.liveselfiecam.MyApplicationInterface;
@@ -350,6 +351,11 @@ public class LiveSelfieCameraActivity extends Activity {
 
     }
 
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
     public void onControllerNull() {
         isCaptureClickable = true;
         isCamFlippable = true;

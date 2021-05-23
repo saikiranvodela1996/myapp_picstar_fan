@@ -47,6 +47,50 @@ public class Info {
     @Json(name = "name")
     private String name;
 
+    @com.squareup.moshi.Json(name = "privacy_policy_url")
+    private String privacyPolicyUrl;
+    @com.squareup.moshi.Json(name = "contactus_phone_num")
+    private String contactUsPhoneNum;
+    @com.squareup.moshi.Json(name = "contactus_email")
+    private String contactUsEmail;
+    @com.squareup.moshi.Json(name = "contactus_address")
+    private String contactUsAddress;
+    public String getPrivacyPolicyUrl() {
+        return privacyPolicyUrl;
+    }
+
+
+
+    public void setPrivacyPolicyUrl(String privacyPolicyUrl) {
+        this.privacyPolicyUrl = privacyPolicyUrl;
+    }
+
+    public String getContactUsPhoneNum() {
+        return contactUsPhoneNum;
+    }
+
+    public void setContactUsPhoneNum(String contactUsPhoneNum) {
+        this.contactUsPhoneNum = contactUsPhoneNum;
+    }
+
+    public String getContactUsEmail() {
+        return contactUsEmail;
+    }
+
+    public void setContactUsEmail(String contactUsEmail) {
+        this.contactUsEmail = contactUsEmail;
+    }
+
+    public String getContactUsAddress() {
+        return contactUsAddress;
+    }
+
+    public void setContactUsAddress(String contactUsAddress) {
+        this.contactUsAddress = contactUsAddress;
+    }
+
+
+
     public Integer getCategory_Id() {
         return categoryId;
     }

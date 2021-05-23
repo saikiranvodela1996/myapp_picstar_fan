@@ -30,7 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class VideoMsgNewRequestFragment extends BaseFragment implements VideoEventView {
+public class VideoMsgNewRequestFragment extends BaseFragment implements VideoEventView, PSR_Utils.OnSingleBtnDialogClick {
 
 
     @BindView(R.id.eventname_Et)
@@ -146,7 +146,7 @@ public class VideoMsgNewRequestFragment extends BaseFragment implements VideoEve
             videoMsgRequest.setVideoEventName(eventName.trim());
             videoMsgRequest.setVideoEventDesc(eventDescriptn.trim());
             videoMsgRequest.setVideoEventDate(eventDate + "T23:59:59.999+00:00");
-            videoMsgPresenter.videoMsgRequest(PSR_Utils.getHeader(psr_prefsManager), videoMsgRequest);
+            videoMsgPresenter.videoMsgRequest(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), videoMsgRequest);
 
         } else {
             PSR_Utils.showNoNetworkAlert(getActivity());
@@ -162,13 +162,19 @@ public class VideoMsgNewRequestFragment extends BaseFragment implements VideoEve
             createServiceReq.setUserId(psr_prefsManager.get(PSRConstants.USERID));
             createServiceReq.setVideoEventId(response.getInfo().getVideoEventId());
             createServiceReq.setServiceRequestTypeId(Integer.parseInt(PSRConstants.VIDEOMSGS_SERVICE_REQ_ID));
-            videoMsgPresenter.createRequest(PSR_Utils.getHeader(psr_prefsManager), createServiceReq);
+            videoMsgPresenter.createRequest(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), createServiceReq);
         } else {
             PSR_Utils.hideProgressDialog();
             PSR_Utils.showNoNetworkAlert(getActivity());
         }
 
 
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(), msg, null, this);
     }
 
     @Override
@@ -227,5 +233,10 @@ public class VideoMsgNewRequestFragment extends BaseFragment implements VideoEve
     public void onErrorCode(String s) {
         PSR_Utils.hideProgressDialog();
         PSR_Utils.showAlert(getActivity(), getResources().getString(R.string.somethingwnt_wrong_txt), null);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
     }
 }

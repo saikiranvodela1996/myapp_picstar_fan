@@ -7,6 +7,7 @@ import com.picstar.picstarapp.mvp.models.videomsgs.createservicerequest.CreateSe
 
 public interface CelebrityEventsView  extends BaseMvpView {
     void onGettingCelebrityEventsSuccess(CelebrityEventsResponse response);
+    void userBlocked(String msg);
      void onGettingCelebrityEventsFailure(CelebrityEventsResponse response);
      void onRequestingSelfieSuccess(CreateServiceResponse requestLiveSelfieRespnse, int eventId);
     void onRequestingSelfieFailure(CreateServiceResponse requestLiveSelfieRespnse);

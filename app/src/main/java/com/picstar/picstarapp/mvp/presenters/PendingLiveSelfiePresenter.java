@@ -15,22 +15,19 @@ import io.reactivex.schedulers.Schedulers;
 public class PendingLiveSelfiePresenter extends BasePresenter<PendingLiveSelfieView> {
 
 
-
-
-
-    public void getPendingLiveSelfieReqs(String header, VideoMsgsPendingReq request) {
-        Disposable disposable = PSRService.getInstance(header).dogetPendingLiveSelfieReqs(request)
+    public void getPendingLiveSelfieReqs(String lang, String header, VideoMsgsPendingReq request) {
+        Disposable disposable = PSRService.getInstance(lang, header).dogetPendingLiveSelfieReqs(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<LiveSelfiePendingResponse>(){
+                .subscribeWith(new CustomDisposableObserver<LiveSelfiePendingResponse>() {
                     @Override
-                    public void onNext(LiveSelfiePendingResponse response ) {
+                    public void onNext(LiveSelfiePendingResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onGettingPendingLiveSelfies(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onGettingPendingLiveSelfiesFailure(response);
                             }
                         }
@@ -43,6 +40,7 @@ public class PendingLiveSelfiePresenter extends BasePresenter<PendingLiveSelfieV
                             getMvpView().onNoInternetConnection();
                         }
                     }
+
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {
@@ -69,8 +67,6 @@ public class PendingLiveSelfiePresenter extends BasePresenter<PendingLiveSelfieV
         compositeSubscription.add(disposable);
 
     }
-
-
 
 
 }

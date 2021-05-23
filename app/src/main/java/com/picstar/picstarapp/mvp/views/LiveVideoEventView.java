@@ -8,6 +8,8 @@ public interface LiveVideoEventView extends BaseMvpView {
 
     void onCreatingvideoEvntSuccess(LiveVideoResponse response);
 
+    void userBlocked(String msg);
+
     void onCreatingvideoEvntFailure(LiveVideoResponse response);
 
     void onCreatingServiceReqSuccess(CreateServiceResponse response);

@@ -29,7 +29,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class LiveVideoCompltdRequestsFragment extends BaseFragment implements LiveVideoPendingView {
+public class LiveVideoCompltdRequestsFragment extends BaseFragment implements LiveVideoPendingView, PSR_Utils.OnSingleBtnDialogClick {
 
     @BindView(R.id.recycler_View)
     RecyclerView recyclerView;
@@ -118,7 +118,7 @@ public class LiveVideoCompltdRequestsFragment extends BaseFragment implements Li
             liveVideoPendingReq.setCelebrityId(celebrityId);
             liveVideoPendingReq.setStatus(PSRConstants.CLOSED);
             liveVideoPendingReq.setPage(currentPage);
-            pendingLiveVideoReqPresenter.getPendingVideoMsgs(PSR_Utils.getHeader(psr_prefsManager), liveVideoPendingReq);
+            pendingLiveVideoReqPresenter.getPendingVideoMsgs(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), liveVideoPendingReq);
 
         } else {
             PSR_Utils.showNoNetworkAlert(getActivity());
@@ -146,6 +146,17 @@ public class LiveVideoCompltdRequestsFragment extends BaseFragment implements Li
                 noListTv.setText(response.getMessage().toString());
             }
         }
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(), msg, null, this);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
     }
 
     @Override

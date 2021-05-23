@@ -16,8 +16,8 @@ import okhttp3.ResponseBody;
 
 public class PaymentPresenter extends BasePresenter<PaymentView> {
 
-    public void doCallStripeChargesApi(String header,String amount,String currency,String descripn,String token ) {
-        Disposable disposable = PSRService.getInstance(header).callStripeChargesApi(amount, currency, descripn, token)
+    public void doCallStripeChargesApi(String lang,String header,String amount,String currency,String descripn,String token ) {
+        Disposable disposable = PSRService.getInstance(lang,header).callStripeChargesApi(amount, currency, descripn, token)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new CustomDisposableObserver<ResponseBody>(){
@@ -73,8 +73,8 @@ public class PaymentPresenter extends BasePresenter<PaymentView> {
 
 
 
-    public void doCreatePaymentServReq(String header, CreateServiceReq request) {
-        Disposable disposable = PSRService.getInstance(header).createPaymentServReq(request)
+    public void doCreatePaymentServReq(String lang,String header, CreateServiceReq request) {
+        Disposable disposable = PSRService.getInstance(lang,header).createPaymentServReq(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>(){
@@ -84,7 +84,12 @@ public class PaymentPresenter extends BasePresenter<PaymentView> {
                             if( response.getStatus().equals("SUCCESS"))
                             {
                                 getMvpView().onCreatingPaymentServReqSuccess(response);
-                            }else
+                            }
+                            else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage());
+                            }
+
+                            else
                             {
                                 getMvpView().onCreatingPaymentServReqFailure(response);
                             }

@@ -28,6 +28,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.picstar.picstarapp.R;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.mvp.models.videomsgs.createservicerequest.CreateServiceReq;
 import com.picstar.picstarapp.mvp.models.videomsgs.createservicerequest.CreateServiceResponse;
 import com.picstar.picstarapp.mvp.presenters.PhotoSelfiePresenter;
@@ -138,6 +139,11 @@ public class BluredImageActivity extends BaseActivity implements PhotoSelfieView
     }
 
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
+
     @OnClick(R.id.left_side_menu_option)
     void onClickBack(View view) {
         PSR_Utils.showDialog(this, "", this);
@@ -185,7 +191,7 @@ public class BluredImageActivity extends BaseActivity implements PhotoSelfieView
                     try {
                         s3Client = new AmazonS3Client(new BasicAWSCredentials(PSRConstants.S3BUCKETACCESSKEYID, PSRConstants.S3BUCKETSECRETACCESSKEY));
                         s3Client.setRegion(Region.getRegion(Regions.US_WEST_2));
-                        pictureName = UUID.randomUUID().toString();
+                        pictureName = UUID.randomUUID().toString()+PSRConstants.IMAGE_FILE_EXTENSION;
                         Log.d("PICTURENAME", pictureName);
                         PutObjectRequest por = new PutObjectRequest(bucketName, pictureName, new java.io.File(path));
                         s3Client.putObject(por);
@@ -201,7 +207,7 @@ public class BluredImageActivity extends BaseActivity implements PhotoSelfieView
                             createServiceReq.setServiceRequestTypeId(Integer.parseInt(serviceReqTypeId));
                             createServiceReq.setEventId(liveEventId);
                             createServiceReq.setServiceRequestId(serviceReqId);
-                            photoSelfiePresenter.uploadPhotoSelfie(PSR_Utils.getHeader(psr_prefsManager), createServiceReq);
+                            photoSelfiePresenter.uploadPhotoSelfie(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE),PSR_Utils.getHeader(psr_prefsManager), createServiceReq);
                         } else {
                             PSR_Utils.hideProgressDialog();
                             PSR_Utils.showToast(BluredImageActivity.this, getResources().getString(R.string.unableto_savephoto_txt));
@@ -227,6 +233,12 @@ public class BluredImageActivity extends BaseActivity implements PhotoSelfieView
         PSR_Utils.hideProgressDialog();
         PSR_Utils.singleBtnAlert(this, response.getMessage(), null, this);
 
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(this,msg,null,this);
     }
 
     @Override

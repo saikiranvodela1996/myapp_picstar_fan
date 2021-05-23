@@ -6,5 +6,8 @@ import com.picstar.picstarapp.mvp.models.videomsgs.createservicerequest.CreateSe
 public interface PhotoSelfieView extends BaseMvpView {
 
     void onCreatingServiceReqSuccess(CreateServiceResponse response);
+
+    void userBlocked(String msg);
+
     void onCreatingServiceReqFailure(CreateServiceResponse response);
 }

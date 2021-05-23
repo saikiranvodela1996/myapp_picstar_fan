@@ -104,8 +104,9 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="20dp">
-
+<!--
         <LinearLayout
+            android:id="@+id/notifications_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -132,9 +133,10 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/grey_color" />
+            android:background="@color/grey_color" />-->
 
         <LinearLayout
+            android:id="@+id/lang_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -164,6 +166,7 @@
             android:background="@color/grey_color" />
 
         <LinearLayout
+            android:id="@+id/terms_policy_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -193,6 +196,7 @@
             android:background="@color/grey_color" />
 
         <LinearLayout
+            android:id="@+id/contact_us_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
@@ -222,21 +226,22 @@
             android:background="@color/grey_color" />
 
         <TextView
-            android:layout_marginTop="30dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:id="@+id/logout_btn"
+            android:layout_marginTop="30dp"
             android:fontFamily="@font/roboto_medium"
             android:padding="10dp"
-            android:textColor="@color/logout_txt_color"
             android:text="@string/logout_txt"
+            android:textColor="@color/logout_txt_color"
             android:textSize="17sp" />
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/grey_color" />
     </LinearLayout>
-
 
 
 </LinearLayout>

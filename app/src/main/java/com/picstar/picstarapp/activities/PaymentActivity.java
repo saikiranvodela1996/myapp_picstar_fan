@@ -19,6 +19,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.picstar.picstarapp.R;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.mvp.models.videomsgs.createservicerequest.CreateServiceReq;
 import com.picstar.picstarapp.mvp.models.videomsgs.createservicerequest.CreateServiceResponse;
 import com.picstar.picstarapp.mvp.presenters.PaymentPresenter;
@@ -50,7 +51,7 @@ import okhttp3.OkHttpClient;
 
 import static com.picstar.picstarapp.utils.PSR_Utils.getServiceCost;
 
-public class PaymentActivity extends BaseActivity implements PaymentView, PSR_Utils.OnSingleBtnDialogClick {
+public class PaymentActivity extends BaseActivity implements PaymentView, PSR_Utils.OnSingleBtnDialogClick{
 
     @BindView(R.id.left_side_menu_option)
     ImageView leftSideMenu;
@@ -223,6 +224,11 @@ public class PaymentActivity extends BaseActivity implements PaymentView, PSR_Ut
         });
     }
 
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
     @OnClick(R.id.left_side_menu_option)
     void onClickBack(View view) {
         finish();
@@ -231,7 +237,7 @@ public class PaymentActivity extends BaseActivity implements PaymentView, PSR_Ut
     private void sendTokenToServer(String tokenID) {
 
         if (PSR_Utils.isOnline(PaymentActivity.this)) {
-            paymentPresenter.doCallStripeChargesApi(PSRConstants.Stripe_secret_KEY, "50", "inr", "test", tokenID);
+            paymentPresenter.doCallStripeChargesApi("",PSRConstants.Stripe_secret_KEY, photoCost, "inr", "test", tokenID);
         } else {
             PSR_Utils.showNoNetworkAlert(PaymentActivity.this);
         }
@@ -244,7 +250,7 @@ public class PaymentActivity extends BaseActivity implements PaymentView, PSR_Ut
                     try {
                         s3Client = new AmazonS3Client(new BasicAWSCredentials(PSRConstants.S3BUCKETACCESSKEYID, PSRConstants.S3BUCKETSECRETACCESSKEY));
                         s3Client.setRegion(Region.getRegion(Regions.US_WEST_2));
-                        pictureName = UUID.randomUUID().toString();
+                        pictureName = UUID.randomUUID().toString()+PSRConstants.IMAGE_FILE_EXTENSION;
                         Log.d("PICTURENAME", pictureName);
                         PutObjectRequest por = new PutObjectRequest(bucketName, pictureName, new java.io.File(photopath));
                         s3Client.putObject(por);
@@ -287,7 +293,7 @@ public class PaymentActivity extends BaseActivity implements PaymentView, PSR_Ut
             createServiceReq.setServiceRequestId(serviceReqId);
             createServiceReq.setEventId(eventId);
             createServiceReq.setPaymentInfo(paymentResponse);
-            paymentPresenter.doCreatePaymentServReq(PSR_Utils.getHeader(psr_prefsManager), createServiceReq);
+            paymentPresenter.doCreatePaymentServReq(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE),PSR_Utils.getHeader(psr_prefsManager), createServiceReq);
         } else {
             PSR_Utils.showNoNetworkAlert(this);
         }
@@ -352,6 +358,12 @@ public class PaymentActivity extends BaseActivity implements PaymentView, PSR_Ut
     }
 
     @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(this,msg,null,this);
+    }
+
+    @Override
     public void onCreatingPaymentServReqFailure(CreateServiceResponse response) {
         PSR_Utils.hideProgressDialog();
         PSR_Utils.showAlert(this, response.getMessage(), null);
@@ -363,4 +375,5 @@ public class PaymentActivity extends BaseActivity implements PaymentView, PSR_Ut
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+
 }

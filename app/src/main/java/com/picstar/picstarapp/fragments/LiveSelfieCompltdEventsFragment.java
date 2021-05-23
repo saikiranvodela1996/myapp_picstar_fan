@@ -30,7 +30,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class LiveSelfieCompltdEventsFragment extends BaseFragment implements PendingLiveSelfieView {
+public class LiveSelfieCompltdEventsFragment extends BaseFragment implements PendingLiveSelfieView, PSR_Utils.OnSingleBtnDialogClick {
 
     @BindView(R.id.liveselfie_closed_recycler_View)
     RecyclerView recyclerView;
@@ -77,7 +77,7 @@ public class LiveSelfieCompltdEventsFragment extends BaseFragment implements Pen
             celebrityProfilePicUrl = args.getString(PSRConstants.PROFILEPICURl);
 
 
-            completedLiveSelfieReqAdapter = new CompletedLiveSelfieReqAdapter(getActivity(), completedselfiesList, celebrityProfilePicUrl,this);
+            completedLiveSelfieReqAdapter = new CompletedLiveSelfieReqAdapter(getActivity(), completedselfiesList, celebrityProfilePicUrl, this);
             recyclerView.setAdapter(completedLiveSelfieReqAdapter);
             completedLiveSelfieReqAdapter.setFooterView(footerView);
 
@@ -115,7 +115,7 @@ public class LiveSelfieCompltdEventsFragment extends BaseFragment implements Pen
         videoMsgsPendingReq.setUserId(psr_prefsManager.get(PSRConstants.USERID));
         videoMsgsPendingReq.setStatus(PSRConstants.CLOSED);
         videoMsgsPendingReq.setPage(currentPage);
-        pendingLiveSelfiePresenter.getPendingLiveSelfieReqs(PSR_Utils.getHeader(psr_prefsManager), videoMsgsPendingReq);
+        pendingLiveSelfiePresenter.getPendingLiveSelfieReqs(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), videoMsgsPendingReq);
     }
 
 
@@ -124,7 +124,7 @@ public class LiveSelfieCompltdEventsFragment extends BaseFragment implements Pen
         PSR_Utils.hideProgressDialog();
         isLoading = false;
         footerViewHolder.progressBar.setVisibility(View.GONE);
-        if (response.getInfo()==null||response.getInfo().size()==0||response.getInfo().isEmpty()) {
+        if (response.getInfo() == null || response.getInfo().size() == 0 || response.getInfo().isEmpty()) {
             isAllPagesShown = true;
         }
         if (response.getInfo().size() != 0) {
@@ -133,7 +133,7 @@ public class LiveSelfieCompltdEventsFragment extends BaseFragment implements Pen
             currentPage++;
 
         } else {
-            if(currentPage==1) {
+            if (currentPage == 1) {
                 recyclerView.setVisibility(View.GONE);
                 noListTv.setVisibility(View.VISIBLE);
                 noListTv.setText(response.getMessage().toString());
@@ -141,6 +141,12 @@ public class LiveSelfieCompltdEventsFragment extends BaseFragment implements Pen
         }
 
 
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(), msg, null, this);
     }
 
     @Override
@@ -157,6 +163,11 @@ public class LiveSelfieCompltdEventsFragment extends BaseFragment implements Pen
     @Override
     public void onClickPaynow(Info info) {
 
+        if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.LIVESELFIE_SERVICE_REQ_ID)) {
+            PSR_Utils.checkRunTimePermissionsNdShareImage(getActivity(), info.getFilePath().toString());
+        }
+
+        //  PSR_Utils.showAlert(getActivity(), "Work in progress",null);
     }
 
     @Override
@@ -192,6 +203,11 @@ public class LiveSelfieCompltdEventsFragment extends BaseFragment implements Pen
     public void onErrorCode(String s) {
         PSR_Utils.hideProgressDialog();
         PSR_Utils.showAlert(getActivity(), getResources().getString(R.string.somethingwnt_wrong_txt), null);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
     }
 
 

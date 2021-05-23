@@ -7,9 +7,12 @@ import okhttp3.ResponseBody;
 
 public interface PaymentView extends BaseMvpView {
     void onGettingChargesResponseSuccess(String responseBody);
+
     void onGettingChargesResponseFailure();
 
     void onCreatingPaymentServReqSuccess(CreateServiceResponse response);
+
+    void userBlocked(String msg);
 
     void onCreatingPaymentServReqFailure(CreateServiceResponse response);
 }

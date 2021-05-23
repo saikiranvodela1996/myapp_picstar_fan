@@ -9,6 +9,7 @@ public interface PendingLiveSelfieView  extends BaseMvpView {
 
 
     void onGettingPendingLiveSelfies(LiveSelfiePendingResponse response);
+    void userBlocked(String msg);
     void onGettingPendingLiveSelfiesFailure(LiveSelfiePendingResponse response);
 
     void onClickPhotoSelfie(String imagePath, boolean isCameFromCompletedHistory);

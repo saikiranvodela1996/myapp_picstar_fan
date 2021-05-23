@@ -26,6 +26,7 @@ import com.auth0.android.provider.WebAuthProvider;
 import com.auth0.android.request.AuthRequest;
 import com.auth0.android.result.Credentials;
 import com.picstar.picstarapp.R;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.mvp.models.login.LoginRequest;
 import com.picstar.picstarapp.mvp.models.login.LoginResponse;
 import com.picstar.picstarapp.mvp.presenters.LoginPresenter;
@@ -44,7 +45,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 
-public class MainActivity extends BaseActivity implements LoginView {
+public class MainActivity extends BaseActivity implements LoginView, PSR_Utils.OnSingleBtnDialogClick {
     private Auth0 auth0;
     private Lock lock;
     private LoginPresenter loginPresenter;
@@ -65,7 +66,7 @@ public class MainActivity extends BaseActivity implements LoginView {
     @OnClick(R.id.getStarted_btn)
     void onClickBtn(View v) {
         showClassicLock();
-     
+
     }
 
 /*    @OnClick(R.id.logout_btn)
@@ -118,6 +119,11 @@ public class MainActivity extends BaseActivity implements LoginView {
 
     }
 
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
 
     private void doLogin() {
         AuthenticationAPIClient authenticationAPIClient = new AuthenticationAPIClient(getAccount());
@@ -220,7 +226,7 @@ public class MainActivity extends BaseActivity implements LoginView {
             loginRequest.setDeviceType("android");
             loginRequest.setDeviceId(PSR_Utils.getId(MainActivity.this));
             loginRequest.setDob("");
-            loginPresenter.doLogin("Bearer " + credentials.getIdToken(), loginRequest);
+            loginPresenter.doLogin(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), "Bearer " + credentials.getIdToken(), loginRequest);
 
         }
 
@@ -392,10 +398,27 @@ public class MainActivity extends BaseActivity implements LoginView {
                 e.printStackTrace();
             }
         }
+
+        psr_prefsManager.save(PSRConstants.PRIVACY_POLICY_URL, response.getInfo().getPrivacyPolicyUrl());
+        psr_prefsManager.save(PSRConstants.CONTACT_US_PHONE_NO, response.getInfo().getContactUsPhoneNum());
+        psr_prefsManager.save(PSRConstants.CONTACT_US_EMAIL, response.getInfo().getContactUsEmail());
+        psr_prefsManager.save(PSRConstants.CONTACT_US_ADDRESS, response.getInfo().getContactUsAddress());
+
+
         psr_prefsManager.save(PSRConstants.ISLOGGEDIN, true);
         Intent intent = new Intent(this, DashBoardActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    @Override
+    public void userBlocked(LoginResponse response) {
+        PSR_Utils.hideProgressDialog();
+        psr_prefsManager.save(PSRConstants.PRIVACY_POLICY_URL, response.getInfo().getPrivacyPolicyUrl());
+        psr_prefsManager.save(PSRConstants.CONTACT_US_PHONE_NO, response.getInfo().getContactUsPhoneNum());
+        psr_prefsManager.save(PSRConstants.CONTACT_US_EMAIL, response.getInfo().getContactUsEmail());
+        psr_prefsManager.save(PSRConstants.CONTACT_US_ADDRESS, response.getInfo().getContactUsAddress());
+        PSR_Utils.singleBtnAlert(this, response.getMessage().toString(), null, this);
     }
 
     @Override
@@ -414,6 +437,11 @@ public class MainActivity extends BaseActivity implements LoginView {
     public void onServerError() {
         PSR_Utils.hideProgressDialog();
         PSR_Utils.showAlert(this, getResources().getString(R.string.somethingwnt_wrong_txt), null);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(this);
     }
 
 

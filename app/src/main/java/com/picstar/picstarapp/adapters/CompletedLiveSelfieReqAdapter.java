@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -49,6 +50,7 @@ public class CompletedLiveSelfieReqAdapter extends RecyclerView.Adapter<Complete
     String celebrityProfilePic;
     private View footerView;
     PendingLiveSelfieView pendingLiveSelfieView;
+
     public void setFooterView(View footerView) {
         this.footerView = footerView;
     }
@@ -57,7 +59,7 @@ public class CompletedLiveSelfieReqAdapter extends RecyclerView.Adapter<Complete
         this.activity = activity;
         this.completedselfieList = completedselfieList;
         this.celebrityProfilePic = celebrityProfilePic;
-        this.pendingLiveSelfieView=pendingLiveSelfieView;
+        this.pendingLiveSelfieView = pendingLiveSelfieView;
     }
 
     @NonNull
@@ -105,6 +107,7 @@ public class CompletedLiveSelfieReqAdapter extends RecyclerView.Adapter<Complete
         holder.eventNameTv.setText(info.getLiveEvent().getEventName());
         holder.eventDescriptnTv.setText(info.getLiveEvent().getEventDesc());
         holder.eventLocationTv.setText(info.getLiveEvent().getEventLocation());
+        holder.paynowBtn.setVisibility(View.GONE);
 
 
         TimeZone toTZ = TimeZone.getDefault();
@@ -123,7 +126,7 @@ public class CompletedLiveSelfieReqAdapter extends RecyclerView.Adapter<Complete
         holder.selfieReq.setText(info.getStatus());
         holder.selfieReq.setTextColor(ContextCompat.getColor(activity, R.color.complted_txt_color));
 
-      /*  if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
+        if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
             holder.selfieImgView.setVisibility(View.VISIBLE);
             holder.progressBar.setVisibility(View.VISIBLE);
             Glide.with(activity).load(info.getFilePath())
@@ -141,7 +144,17 @@ public class CompletedLiveSelfieReqAdapter extends RecyclerView.Adapter<Complete
                         }
                     })
                     .into(holder.selfieImgView);
-        }*/
+        }
+
+
+        if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty() && info.getStatus().toLowerCase().contains("completed")) {
+           holder.paynowBtn.setVisibility(View.VISIBLE);
+            holder.paynowBtn.setText(activity.getResources().getString(R.string.share_txt));
+        } else {
+            holder.paynowBtn.setVisibility(View.GONE);
+        }
+
+
     }
 
 
@@ -162,6 +175,9 @@ public class CompletedLiveSelfieReqAdapter extends RecyclerView.Adapter<Complete
 
         @BindView(R.id.eventlocation_tv)
         TextView eventLocationTv;
+        @BindView(R.id.paynow_btn)
+        Button paynowBtn;
+
 
         @BindView(R.id.event_date)
         TextView eventDate;
@@ -183,6 +199,13 @@ public class CompletedLiveSelfieReqAdapter extends RecyclerView.Adapter<Complete
             Info info = completedselfieList.get(getAdapterPosition());
             pendingLiveSelfieView.onClickPhotoSelfie(info.getFilePath().toString(), false);
         }
+        @OnClick(R.id.paynow_btn)
+        void onClickShare(View view) {
+            Info info = completedselfieList.get(getAdapterPosition());
+            pendingLiveSelfieView.onClickPaynow(info);
+        }
+
+
 
     }
 

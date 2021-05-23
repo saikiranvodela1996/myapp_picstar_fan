@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.activities.PaymentActivity;
+import com.picstar.picstarapp.activities.VideoPlayerActivity;
 import com.picstar.picstarapp.adapters.PendingVideoMsgsAdapter;
 import com.picstar.picstarapp.mvp.models.pendingVideoMsgs.Info;
 import com.picstar.picstarapp.mvp.models.pendingVideoMsgs.PendingVideoMsgsResponse;
@@ -31,7 +32,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements VideoMsgsPendingView {
+public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements VideoMsgsPendingView, PSR_Utils.OnSingleBtnDialogClick {
 
     @BindView(R.id.recycler_View)
     RecyclerView recyclerView;
@@ -49,6 +50,7 @@ public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements Vide
     private boolean isAllPagesShown = false;
     private int currentPage = 1;
     List<Info> pendingvideoMsgs;
+
     ///List<Info> pendingvideoMsgs;
 
     class FooterViewHolder {
@@ -79,7 +81,7 @@ public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements Vide
         videoMsgsPendingReqPresenter.attachMvpView(this);
 
         footerViewHolder = new FooterViewHolder(footerView);
-        pendingVideoMsgsAdapter = new PendingVideoMsgsAdapter(getActivity(), pendingvideoMsgs, false,this);
+        pendingVideoMsgsAdapter = new PendingVideoMsgsAdapter(getActivity(), pendingvideoMsgs, false, this);
         recyclerView.setAdapter(pendingVideoMsgsAdapter);
 
         pendingVideoMsgsAdapter.setFooterView(footerView);
@@ -125,7 +127,7 @@ public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements Vide
         videoMsgsPendingReq.setCelebrityId(celebrityId);
         videoMsgsPendingReq.setStatus(PSRConstants.PENDING);
         videoMsgsPendingReq.setPage(currentPage);
-        videoMsgsPendingReqPresenter.getPendingVideoMsgs(PSR_Utils.getHeader(psr_prefsManager), videoMsgsPendingReq);
+        videoMsgsPendingReqPresenter.getPendingVideoMsgs(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), videoMsgsPendingReq);
     }
 
 
@@ -137,7 +139,7 @@ public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements Vide
             videoMsgsPendingReq.setCelebrityId(celebrityId);
             videoMsgsPendingReq.setStatus(PSRConstants.PENDING);
             videoMsgsPendingReq.setPage(1);
-            videoMsgsPendingReqPresenter.getPendingVideoMsgs(PSR_Utils.getHeader(psr_prefsManager), videoMsgsPendingReq);
+            videoMsgsPendingReqPresenter.getPendingVideoMsgs(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), videoMsgsPendingReq);
         } else {
             PSR_Utils.showNoNetworkAlert(getActivity());
         }
@@ -149,15 +151,14 @@ public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements Vide
         PSR_Utils.hideProgressDialog();
         isLoading = false;
         footerViewHolder.progressBar.setVisibility(View.GONE);
-        if (response.getInfo()==null||response.getInfo().size()==0||response.getInfo().isEmpty()) {
+        if (response.getInfo() == null || response.getInfo().size() == 0 || response.getInfo().isEmpty()) {
             isAllPagesShown = true;
         }
         if (response.getInfo().size() != 0) {
             pendingvideoMsgs.addAll(response.getInfo());
             pendingVideoMsgsAdapter.notifyDataSetChanged();
         } else {
-            if(currentPage==1)
-            {
+            if (currentPage == 1) {
                 recyclerView.setVisibility(View.GONE);
                 noListTv.setVisibility(View.VISIBLE);
                 noListTv.setText(response.getMessage().toString());
@@ -166,6 +167,16 @@ public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements Vide
         }
     }
 
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(), msg, null, this);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
+    }
     @Override
     public void gettingPendingorcompltdVideoMsgsFailure(PendingVideoMsgsResponse response) {
         PSR_Utils.hideProgressDialog();
@@ -187,6 +198,13 @@ public class VideoMsgPendingRequestsFragmnt extends BaseFragment implements Vide
             intent.putExtra(PSRConstants.SERVICEREQTYPEID, PSRConstants.VIDEOMSGS_SERVICE_REQ_ID);
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onClickVideo(String videoUrl) {
+        Intent intent = new Intent(getActivity(), VideoPlayerActivity.class);
+        intent.putExtra(PSRConstants.VIDEOURL, videoUrl);
+        startActivity(intent);
     }
 
     @Override

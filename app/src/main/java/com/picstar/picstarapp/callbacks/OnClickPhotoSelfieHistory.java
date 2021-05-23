@@ -6,4 +6,5 @@ public interface OnClickPhotoSelfieHistory {
     void onClickPhotoSelfie(String imagePath, boolean isCameFromCompletedHistory);
 
     void onClickPaynow(Info info);
+    void onVideoClicked(String filePath);
 }

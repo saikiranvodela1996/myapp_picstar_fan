@@ -37,6 +37,7 @@ import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.adapters.CelebritiesListAdapter;
 import com.picstar.picstarapp.adapters.RecommendedCelebritiesAdapter;
 import com.picstar.picstarapp.callbacks.OnClickCelebrity;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.mvp.models.categories.CategoriesListResponse;
 import com.picstar.picstarapp.mvp.models.categories.Info;
 import com.picstar.picstarapp.mvp.models.celebrities.CelebritiesByIdRequest;
@@ -56,7 +57,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class DashBoardActivity extends BaseActivity implements CategoriesView, NavigationView.OnNavigationItemSelectedListener, OnClickCelebrity {
+public class DashBoardActivity extends BaseActivity implements CategoriesView, NavigationView.OnNavigationItemSelectedListener, OnClickCelebrity, PSR_Utils.OnSingleBtnDialogClick {
     @Nullable
     @BindView(R.id.left_side_menu_option)
     ImageView leftSideMenu;
@@ -113,7 +114,8 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
     TextView userNameTv;
     private Auth0 auth0;
     private boolean isOutSideClicked;
-    private boolean isDrawerOpen=false;
+    private boolean isDrawerOpen = false;
+    private boolean isUserBlocked = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -243,16 +245,15 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
         });
 
 
-
     }
 
     public void searchPagination(String searchString) {
         this.searchString = searchString;
         if (PSR_Utils.isOnline(this)) {
             if (categoryId == PSRConstants.FAVOURITES_CATEGORY_ID) {
-                categoriesPresenter.searchForCelebrity(PSR_Utils.getHeader(psr_prefsManager), categoryId, currentPage, searchString, psr_prefsManager.get(PSRConstants.USERID));
+                categoriesPresenter.searchForCelebrity(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), categoryId, currentPage, searchString, psr_prefsManager.get(PSRConstants.USERID));
             } else {
-                categoriesPresenter.searchForCelebrity(PSR_Utils.getHeader(psr_prefsManager), categoryId, currentPage, searchString, "");
+                categoriesPresenter.searchForCelebrity(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), categoryId, currentPage, searchString, "");
             }
 
         } else {
@@ -283,7 +284,7 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
             } else {
                 addtoFavRequest.setFavStatus(true);
             }
-            categoriesPresenter.addToMyFavs(PSR_Utils.getHeader(psr_prefsManager), addtoFavRequest, info.getUserId());
+            categoriesPresenter.addToMyFavs(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), addtoFavRequest, info.getUserId());
         } else {
             PSR_Utils.showNoNetworkAlert(this);
         }
@@ -297,8 +298,10 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
         startActivity(intent);
     }
 
-
-
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(this);
+    }
 
 
     class ProgressBarViewHolder {
@@ -321,8 +324,8 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
 
     @OnClick(R.id.left_side_menu_option)
     void onclickMenu(View view) {
-
-        drawer.openDrawer(GravityCompat.START);
+        if (!isUserBlocked)
+            drawer.openDrawer(GravityCompat.START);
     }
 
 
@@ -371,9 +374,9 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
             //celebritiesList.clear();
             //noListTv.setVisibility(View.GONE);
             if (categoryId == PSRConstants.FAVOURITES_CATEGORY_ID) {
-                categoriesPresenter.searchForCelebrity(PSR_Utils.getHeader(psr_prefsManager), categoryId, currentPage, searchString, psr_prefsManager.get(PSRConstants.USERID));
+                categoriesPresenter.searchForCelebrity(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), categoryId, currentPage, searchString, psr_prefsManager.get(PSRConstants.USERID));
             } else {
-                categoriesPresenter.searchForCelebrity(PSR_Utils.getHeader(psr_prefsManager), categoryId, currentPage, searchString, "");
+                categoriesPresenter.searchForCelebrity(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), categoryId, currentPage, searchString, "");
             }
 
         } else {
@@ -453,23 +456,19 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
                 switch (menuItem.getItemId()) {
 
                     case R.id.navigation_home:
-                      //  isDrawerOpen=false;
                         drawer.closeDrawers();
                         break;
                     case R.id.naviagtion_history:
-                       // isDrawerOpen=false;
                         drawer.closeDrawers();
                         navigateToHistory();
                         break;
                     case R.id.naviagtion_settings:
-                      //  isDrawerOpen=false;
                         drawer.closeDrawers();
-                      /*  Intent intent2 = new Intent(DashBoardActivity.this, SettingsActivity.class);
-                        startActivity(intent2);*/
-                        PSR_Utils.showAlert(DashBoardActivity.this, "Work in Progress", null);
+                        Intent intent2 = new Intent(DashBoardActivity.this, SettingsActivity.class);
+                        startActivity(intent2);
+                        //  PSR_Utils.showAlert(DashBoardActivity.this, "Work in Progress", null);
                         break;
                     case R.id.naviagtion_logout:
-                       // isDrawerOpen=false;
                         drawer.closeDrawers();
                         openLogoutDialog();
                         break;
@@ -497,6 +496,11 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
     }
 
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
+
     private void navigateToHistory() {
         if (!PSR_Utils.handleDoubleClick(DashBoardActivity.this)) {
             return;
@@ -519,7 +523,7 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
     void getAllCategoriesList() {
         if (PSR_Utils.isOnline(this)) {
             PSR_Utils.showProgressDialog(this);
-            categoriesPresenter.getCategoriesList(PSR_Utils.getHeader(psr_prefsManager));
+            categoriesPresenter.getCategoriesList(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), psr_prefsManager.get(PSRConstants.USERID));
         } else {
             PSR_Utils.showNoNetworkAlert(this);
         }
@@ -610,6 +614,14 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
     }
 
 
+    @Override
+    public void userBlocked(String msg) {
+        isUserBlocked = true;
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(this, msg, null, this);
+    }
+
+
     private void getCelebritiesByID(int id) {
         if (PSR_Utils.isOnline(DashBoardActivity.this)) {
             PSR_Utils.showProgressDialog(DashBoardActivity.this);
@@ -638,7 +650,7 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
         CelebritiesByIdRequest recommendRequest = new CelebritiesByIdRequest();
         recommendRequest.setCategoryId(id);
         recommendRequest.setPage(recommendsCurrentPage);
-        categoriesPresenter.getRecommCelebrities(PSR_Utils.getHeader(psr_prefsManager), recommendRequest);
+        categoriesPresenter.getRecommCelebrities(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), recommendRequest);
 
     }
 
@@ -649,20 +661,21 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
             isAllPagesShown = false;
             celebritiesList.clear();
         }
-        if (id == PSRConstants.FAVOURITES_CATEGORY_ID) {
+      /*  if (id == PSRConstants.FAVOURITES_CATEGORY_ID) {
 
             CelebritiesByIdRequest celebritiesByIdRequest = new CelebritiesByIdRequest();
             celebritiesByIdRequest.setUserId(psr_prefsManager.get(PSRConstants.USERID));
             celebritiesByIdRequest.setPerPage(10);
             celebritiesByIdRequest.setPage(currentPage);
-            categoriesPresenter.getMyFavCelebrities(PSR_Utils.getHeader(psr_prefsManager), celebritiesByIdRequest);
-        } else {
-            CelebritiesByIdRequest celebritiesByIdRequest = new CelebritiesByIdRequest();
-            celebritiesByIdRequest.setCategoryId(id);
-            celebritiesByIdRequest.setPerPage(10);
-            celebritiesByIdRequest.setPage(currentPage);
-            categoriesPresenter.getCelebritiesById(PSR_Utils.getHeader(psr_prefsManager), celebritiesByIdRequest);
-        }
+            categoriesPresenter.getMyFavCelebrities(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), celebritiesByIdRequest);
+        } else {*/
+        CelebritiesByIdRequest celebritiesByIdRequest = new CelebritiesByIdRequest();
+        celebritiesByIdRequest.setCategoryId(id);
+        celebritiesByIdRequest.setPerPage(10);
+        celebritiesByIdRequest.setUserId(psr_prefsManager.get(PSRConstants.USERID));
+        celebritiesByIdRequest.setPage(currentPage);
+        categoriesPresenter.getCelebritiesById(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), celebritiesByIdRequest);
+        //   }
 
     }
 
@@ -700,7 +713,7 @@ public class DashBoardActivity extends BaseActivity implements CategoriesView, N
         if (categoryId == PSRConstants.FAVOURITES_CATEGORY_ID) {
             getCelebritiesListFromServer(categoryId);
         } else {
-            if (!response.getMessage().contains("Already")) {
+            if (!response.getMessage().contains("Already") && !response.getMessage().contains("Ya")) {
                 for (com.picstar.picstarapp.mvp.models.celebrities.Info celebrity : celebritiesList) {
                     if (celebrity.getUserId().equals(celebrityId)) {
                         celebrity.setFavs(celebrity.getFavs() + 1);

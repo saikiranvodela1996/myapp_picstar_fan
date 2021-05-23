@@ -49,6 +49,7 @@ import com.karumi.dexter.listener.PermissionRequestErrorListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.callbacks.ProfileUpdateSuccess;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.mvp.models.updateprofile.UpdateProfileReq;
 import com.picstar.picstarapp.mvp.models.updateprofile.UpdateProfileResponse;
 import com.picstar.picstarapp.mvp.models.videomsgs.createservicerequest.CreateServiceReq;
@@ -83,7 +84,7 @@ import butterknife.OnClick;
 
 import static java.security.AccessController.getContext;
 
-public class MyProfileActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, UpdateUserProfileView, ProfileUpdateSuccess {
+public class MyProfileActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, UpdateUserProfileView, ProfileUpdateSuccess, PSR_Utils.OnSingleBtnDialogClick {
     @BindView(R.id.username_et)
     EditText userNameEt;
     @BindView(R.id.username_tv)
@@ -116,6 +117,8 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
     public String imagePath;
     private String finalDateOfBirth;
     private boolean isCameFirst = true;
+    private String clickedPhotoPath = "";
+    private static final int CLICK_PHOTO = 5;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -132,19 +135,24 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
         dateOfBirthTv.setText(psr_prefsManager.get(PSRConstants.USERDOB));
         finalDateOfBirth = psr_prefsManager.get(PSRConstants.USERSERVERDOB);
         genderTv.setText(psr_prefsManager.get(PSRConstants.USERGENDER));
+        if (savedInstanceState != null) {
+            clickedPhotoPath = savedInstanceState.getString("PHOTOPATH");
+        }
         Spinner spin = (Spinner) findViewById(R.id.gender_spinner);
         spin.setOnItemSelectedListener(this);
+        //  if (savedInstanceState == null) {
         Glide.with(this)
                 .load(psr_prefsManager.get(PSRConstants.USERPROFILEPIC))
                 .centerCrop()
                 .placeholder(R.drawable.ic_profilepholder)
                 .into(profilePicImgv);
+        // }
 
         ArrayAdapter aa = new ArrayAdapter(this, android.R.layout.simple_spinner_item, items);
         aa.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spin.setAdapter(aa);
-        for (int i=0;i<items.length;i++) {
-            if (items[i].equalsIgnoreCase(psr_prefsManager.get(PSRConstants.USERGENDER))){
+        for (int i = 0; i < items.length; i++) {
+            if (items[i].equalsIgnoreCase(psr_prefsManager.get(PSRConstants.USERGENDER))) {
                 spin.setSelection(i);
 
             }
@@ -198,6 +206,11 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
         });
     }
 
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
 
     @OnClick(R.id.profilepic_imgView)
     void onClickProfilePic(View view) {
@@ -321,13 +334,13 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
         updateProfileReq.setDob(finalDateOfBirth);
         updateProfileReq.setGender(gender);
         updateProfileReq.setPhoneNumber(phoneNumberTv.getText().toString().trim());
-        updateUserProfilePresenter.updateUserProfile(PSR_Utils.getHeader(psr_prefsManager), updateProfileReq);
+        updateUserProfilePresenter.updateUserProfile(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), updateProfileReq);
     }
 
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-            genderTv.setText(items[i]);
+        genderTv.setText(items[i]);
     }
 
     @Override
@@ -360,6 +373,12 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
         }
 
         PSR_Utils.successAlert(this, response.getMessage(), this);
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(this, msg, null, this);
     }
 
     @Override
@@ -405,7 +424,7 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
 
 
     private void profilePicDialog() {
-        final String[] items = {getResources().getString(R.string.gallery_txt),getResources().getString(R.string.camera_txt)};
+        final String[] items = {getResources().getString(R.string.gallery_txt), getResources().getString(R.string.camera_txt)};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getResources().getString(R.string.chooseoption_txt));
@@ -495,6 +514,14 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
                 PSR_Utils.showToast(this, "error");
                 Exception error = result.getError();
             }
+        } else if (requestCode == CLICK_PHOTO) {
+            if (resultCode == RESULT_OK) {
+                CropImage.activity(Uri.fromFile(new File(clickedPhotoPath)))
+                        .setAllowFlipping(false)
+                        .setAspectRatio(1, 1)
+                        .setCropMenuCropButtonTitle("Done")
+                        .start(MyProfileActivity.this);
+            }
         }
 
     }
@@ -556,6 +583,24 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
 
 
     public void launchCamera() {
+
+        try {
+
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            clickedPhotoPath = PSR_Utils.getClickedPhotoPath(getApplicationContext());
+
+            if (clickedPhotoPath == null) {
+
+                PSR_Utils.showAlert(this, getResources().getString(R.string.somethingwnt_wrong_txt), null);
+                return;
+            }
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(new File(clickedPhotoPath)));
+            startActivityForResult(Intent.createChooser(intent, "Click Photo"), CLICK_PHOTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        /*
         try {
             Retropicker.Builder builder = new Retropicker.Builder(this)
                     .setTypeAction(Retropicker.CAMERA_PICKER)
@@ -603,7 +648,7 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
 
@@ -615,7 +660,7 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
                     try {
                         s3Client = new AmazonS3Client(new BasicAWSCredentials(PSRConstants.S3BUCKETACCESSKEYID, PSRConstants.S3BUCKETSECRETACCESSKEY));
                         s3Client.setRegion(Region.getRegion(Regions.US_WEST_2));
-                        pictureName = UUID.randomUUID().toString();
+                        pictureName = UUID.randomUUID().toString() + PSRConstants.IMAGE_FILE_EXTENSION;
                         Log.d("PICTURENAME", pictureName);
                         PutObjectRequest por = new PutObjectRequest(PSRConstants.PROFILEPICS, pictureName, new java.io.File(imagePath));
                         s3Client.putObject(por);
@@ -652,5 +697,17 @@ public class MyProfileActivity extends BaseActivity implements AdapterView.OnIte
     @Override
     public void onUpdatingSuccess() {
         finish();
+    }
+
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("PHOTOPATH", clickedPhotoPath);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(this);
     }
 }

@@ -14,20 +14,19 @@ import io.reactivex.schedulers.Schedulers;
 public class PhotoSelfieHistoryPresenter extends BasePresenter<PhotoSelfieHistoryView> {
 
 
-
-    public void getPendingEventsHistory(String header,String statuskey, String  userID, int pageNo ) {
-        Disposable disposable = PSRService.getInstance(header).doGetPendingHistory(userID,statuskey,pageNo)
+    public void getPendingEventsHistory(String lang, String header, String statuskey, String userID, int pageNo) {
+        Disposable disposable = PSRService.getInstance(lang, header).doGetPendingHistory(userID, statuskey, pageNo)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<PendingHistoryResponse>(){
+                .subscribeWith(new CustomDisposableObserver<PendingHistoryResponse>() {
                     @Override
-                    public void onNext(PendingHistoryResponse response ) {
+                    public void onNext(PendingHistoryResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onGettingHistorySuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onGettingHistoryFailure(response);
                             }
                         }
@@ -47,6 +46,7 @@ public class PhotoSelfieHistoryPresenter extends BasePresenter<PhotoSelfieHistor
                             getMvpView().onSessionExpired();
                         }
                     }
+
                     @Override
                     public void onServerError() {
                         if (getMvpView() != null) {
@@ -66,8 +66,6 @@ public class PhotoSelfieHistoryPresenter extends BasePresenter<PhotoSelfieHistor
         compositeSubscription.add(disposable);
 
     }
-
-
 
 
 }

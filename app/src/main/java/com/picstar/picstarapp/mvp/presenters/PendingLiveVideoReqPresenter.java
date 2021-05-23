@@ -16,8 +16,8 @@ public class PendingLiveVideoReqPresenter extends BasePresenter<LiveVideoPending
 
 
 
-    public void getPendingVideoMsgs(String header, LiveVideoPendingReq request) {
-        Disposable disposable = PSRService.getInstance(header).dogetPendingLiveVideo(request)
+    public void getPendingVideoMsgs(String lang,String header, LiveVideoPendingReq request) {
+        Disposable disposable = PSRService.getInstance(lang,header).dogetPendingLiveVideo(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new CustomDisposableObserver<PendingLiveVideoResponse>(){
@@ -27,7 +27,11 @@ public class PendingLiveVideoReqPresenter extends BasePresenter<LiveVideoPending
                             if( response.getStatus().equals("SUCCESS"))
                             {
                                 getMvpView().gettingPendingorcompltdLiveVideoSuccess(response);
-                            }else
+                            }
+                            else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            }
+                            else
                             {
                                 getMvpView().gettingPendingorcompltdLiveVideoFailure(response);
                             }

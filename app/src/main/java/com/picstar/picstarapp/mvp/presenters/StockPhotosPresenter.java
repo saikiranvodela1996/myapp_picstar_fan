@@ -13,24 +13,22 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class StockPhotosPresenter  extends BasePresenter<StockPhotosView> {
+public class StockPhotosPresenter extends BasePresenter<StockPhotosView> {
 
 
-
-
-    public void getStockPicsOfCelebrity(String header, CelebritiesByIdRequest request) {
-        Disposable disposable = PSRService.getInstance(header).doGetStockPicsOfCelebrity(request)
+    public void getStockPicsOfCelebrity(String lang, String header, CelebritiesByIdRequest request) {
+        Disposable disposable = PSRService.getInstance(lang, header).doGetStockPicsOfCelebrity(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<StockPhotosResponse>(){
+                .subscribeWith(new CustomDisposableObserver<StockPhotosResponse>() {
                     @Override
-                    public void onNext(StockPhotosResponse response ) {
+                    public void onNext(StockPhotosResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onGettingStockPicsSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onGettingStockPicsFailure(response);
                             }
                         }
@@ -43,6 +41,7 @@ public class StockPhotosPresenter  extends BasePresenter<StockPhotosView> {
                             getMvpView().onNoInternetConnection();
                         }
                     }
+
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {

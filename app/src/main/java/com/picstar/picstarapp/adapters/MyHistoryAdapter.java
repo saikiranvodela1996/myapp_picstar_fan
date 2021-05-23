@@ -2,6 +2,7 @@ package com.picstar.picstarapp.adapters;
 
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -119,12 +121,23 @@ public class MyHistoryAdapter extends RecyclerView.Adapter<MyHistoryAdapter.View
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        holder.playBtn.setVisibility(View.GONE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            holder.photoSelfieimgV.setForeground(null);
+        }
+        holder.paynowBtn.setVisibility(View.VISIBLE);
         if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.LIVESELFIE_SERVICE_REQ_ID)) {
             try {
                 if (isCameFromCompletedHistory) {
-                    holder.paynowBtn.setVisibility(View.GONE);
-                } else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
+                    if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty() && info.getStatus().toLowerCase().contains("completed")) {
+                        holder.paynowBtn.setVisibility(View.VISIBLE);
+                        holder.paynowBtn.setText(activity.getResources().getString(R.string.share_txt));
+                    } else {
+                        holder.paynowBtn.setVisibility(View.GONE);
+                    }
+                }/* else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS) && info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
+                    holder.paynowBtn.setText(activity.getResources().getString(R.string.share_txt));
+                }*/ else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
                     holder.paynowBtn.setVisibility(View.GONE);
                 }
                 holder.eventTypeTv.setText(activity.getResources().getString(R.string.liveselfie_txt));
@@ -190,10 +203,22 @@ public class MyHistoryAdapter extends RecyclerView.Adapter<MyHistoryAdapter.View
         } else if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.PHOTOSELFIE_SERVICE_REQ_ID)) {
             try {
                 if (isCameFromCompletedHistory) {
+                    if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty() && info.getStatus().toLowerCase().contains("completed")) {
+                        holder.paynowBtn.setVisibility(View.VISIBLE);
+                        holder.paynowBtn.setText(activity.getResources().getString(R.string.share_txt));
+                    } else {
+                        holder.paynowBtn.setVisibility(View.GONE);
+                    }
+                }/* else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS) && info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
+                    holder.paynowBtn.setText(activity.getResources().getString(R.string.share_txt));
+                }*/else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
+                    holder.paynowBtn.setVisibility(View.GONE);
+                }
+              /*  if (isCameFromCompletedHistory) {
                     holder.paynowBtn.setVisibility(View.GONE);
                 } else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
                     holder.paynowBtn.setVisibility(View.GONE);
-                }
+                }*/
                 holder.locationTV.setVisibility(View.GONE);
                 holder.eventNameTv.setVisibility(View.GONE);
                 holder.dateTV.setVisibility(View.GONE);
@@ -244,13 +269,52 @@ public class MyHistoryAdapter extends RecyclerView.Adapter<MyHistoryAdapter.View
 
         } else if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.VIDEOMSGS_SERVICE_REQ_ID)) {
             if (isCameFromCompletedHistory) {
+                if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty() && info.getStatus().toLowerCase().contains("completed")) {
+                    holder.paynowBtn.setVisibility(View.VISIBLE);
+                    holder.paynowBtn.setText(activity.getResources().getString(R.string.share_txt));
+                } else {
+                    holder.paynowBtn.setVisibility(View.GONE);
+                }
+            }/* else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS) && info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
+                holder.paynowBtn.setText(activity.getResources().getString(R.string.share_txt));
+            }*/else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
+                holder.paynowBtn.setVisibility(View.GONE);
+            }
+          /*  if (isCameFromCompletedHistory) {
                 holder.paynowBtn.setVisibility(View.GONE);
             } else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
                 holder.paynowBtn.setVisibility(View.GONE);
-            }
+            }*/
             holder.locationTV.setVisibility(View.GONE);
-            holder.photoSelfieimgV.setVisibility(View.GONE);
-            holder.progressBar.setVisibility(View.GONE);
+            if (info.getFilePath() == null || info.getFilePath().toString().isEmpty()) {
+                holder.photoSelfieimgV.setVisibility(View.GONE);
+                holder.progressBar.setVisibility(View.GONE);
+                holder.playBtn.setVisibility(View.GONE);
+            } else {
+                holder.photoSelfieimgV.setVisibility(View.VISIBLE);
+                holder.progressBar.setVisibility(View.VISIBLE);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    holder.photoSelfieimgV.setForeground(activity.getResources().getDrawable(R.drawable.ic_foreground_img));
+                }
+                Glide.with(activity).load(info.getThumbnail())
+                        .placeholder(activity.getResources().getDrawable(R.drawable.ic_videopholder))
+                        .apply(bitmapTransform(new BlurTransformation(isCameFromCompletedHistory ? 1 : 40)))
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                holder.progressBar.setVisibility(View.GONE);
+                                holder.playBtn.setVisibility(View.VISIBLE);
+                                return false;
+                            }
+                        })
+                        .into(holder.photoSelfieimgV);
+            }
             holder.eventNameTv.setVisibility(View.VISIBLE);
             holder.dateTV.setVisibility(View.VISIBLE);
             holder.eventNameTv.setText(info.getVideoEvent().getVideoEventName());
@@ -266,6 +330,7 @@ public class MyHistoryAdapter extends RecyclerView.Adapter<MyHistoryAdapter.View
             holder.eventTypeImv.setImageDrawable(activity.getResources().getDrawable(R.drawable.ic_videomsg_blue));
 
         } else if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.LIVE_VIDEO_SERVICE_REQ_ID)) {
+
             if (isCameFromCompletedHistory) {
                 holder.paynowBtn.setVisibility(View.GONE);
             } else if (info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
@@ -305,6 +370,8 @@ public class MyHistoryAdapter extends RecyclerView.Adapter<MyHistoryAdapter.View
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.play_btn)
+        ImageView playBtn;
         @BindView(R.id.progress_bar)
         ProgressBar progressBar;
         @BindView(R.id.paynow_btn)
@@ -339,8 +406,28 @@ public class MyHistoryAdapter extends RecyclerView.Adapter<MyHistoryAdapter.View
         @OnClick(R.id.photo_selfie_imgV)
         void onClickPhoto(View view) {
             Info info = pendingHistory.get(getAdapterPosition());
+            if (isCameFromCompletedHistory) {
+                if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.VIDEOMSGS_SERVICE_REQ_ID)) {
+                    if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty() && info.getStatus().toLowerCase().contains("completed")) {
+                        onClickPhotoSelfieHistory.onVideoClicked(info.getFilePath().toString());
+                    }
+                } else {
+                    if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
+                        onClickPhotoSelfieHistory.onClickPhotoSelfie(info.getFilePath().toString(), isCameFromCompletedHistory);
+                    }
+                }
+            } else if (info.getFilePath() != null && !info.getFilePath().toString().isEmpty()) {
+                if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.VIDEOMSGS_SERVICE_REQ_ID)) {
+                    if (info.getStatus().toLowerCase().contains("success")) {
+                        onClickPhotoSelfieHistory.onVideoClicked(info.getFilePath().toString());
+                    } else {
+                        PSR_Utils.showToast(activity, activity.getResources().getString(R.string.doPayment_alert));
+                    }
 
-            onClickPhotoSelfieHistory.onClickPhotoSelfie(info.getFilePath().toString(), isCameFromCompletedHistory);
+                } else {
+                    onClickPhotoSelfieHistory.onClickPhotoSelfie(info.getFilePath().toString(), isCameFromCompletedHistory);
+                }
+            }
         }
 
       /*  @OnClick(R.id.parentLayout)

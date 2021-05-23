@@ -7,5 +7,8 @@ import com.picstar.picstarapp.mvp.models.history.HistoryResponse;
 public interface PhotoSelfieHistoryView extends BaseMvpView {
 
     void onGettingHistorySuccess(PendingHistoryResponse re);
+
+    void userBlocked(String msg);
+
     void onGettingHistoryFailure(PendingHistoryResponse response);
 }

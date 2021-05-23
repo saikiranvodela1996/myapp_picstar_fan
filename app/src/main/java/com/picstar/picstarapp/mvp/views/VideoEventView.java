@@ -7,12 +7,13 @@ import com.picstar.picstarapp.mvp.models.videomsgs.createservicerequest.CreateSe
 public interface VideoEventView extends BaseMvpView {
 
 
-
     void onCreatingvideoEvntSuccess(VideoMsgResponse response);
 
-     void onCreatingvideoEvntFailure(VideoMsgResponse response);
+    void userBlocked(String msg);
 
-     void onCreatingServiceReqSuccess(CreateServiceResponse response);
+    void onCreatingvideoEvntFailure(VideoMsgResponse response);
 
-     void onCreatingServiceReqFailure(CreateServiceResponse response);
+    void onCreatingServiceReqSuccess(CreateServiceResponse response);
+
+    void onCreatingServiceReqFailure(CreateServiceResponse response);
 }

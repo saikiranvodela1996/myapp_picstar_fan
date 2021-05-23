@@ -30,7 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class LiveVideoNewRequestFragment extends BaseFragment implements LiveVideoEventView {
+public class LiveVideoNewRequestFragment extends BaseFragment implements LiveVideoEventView , PSR_Utils.OnSingleBtnDialogClick {
 
     @BindView(R.id.eventname_Et)
     EditText eventNameEt;
@@ -137,7 +137,7 @@ public class LiveVideoNewRequestFragment extends BaseFragment implements LiveVid
             videoMsgRequest.setLiveVideoName(eventName.trim());
             videoMsgRequest.setLiveVideoDesc(eventDescriptn.trim());
             videoMsgRequest.setLiveVideoDatetime(eventDate + "T23:59:59.999+00:00");
-            liveVideoPresenter.liveVideoRequest(PSR_Utils.getHeader(psr_prefsManager), videoMsgRequest);
+            liveVideoPresenter.liveVideoRequest(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE),PSR_Utils.getHeader(psr_prefsManager), videoMsgRequest);
 
         } else {
             PSR_Utils.showNoNetworkAlert(getActivity());
@@ -153,13 +153,19 @@ public class LiveVideoNewRequestFragment extends BaseFragment implements LiveVid
             createServiceReq.setUserId(psr_prefsManager.get(PSRConstants.USERID));
             createServiceReq.setLiveVideoId(response.getInfo().getLiveVideoId());
             createServiceReq.setServiceRequestTypeId(Integer.parseInt(PSRConstants.LIVE_VIDEO_SERVICE_REQ_ID));
-            liveVideoPresenter.doCreateLiveVideoRequest(PSR_Utils.getHeader(psr_prefsManager), createServiceReq);
+            liveVideoPresenter.doCreateLiveVideoRequest(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE),PSR_Utils.getHeader(psr_prefsManager), createServiceReq);
         } else {
             PSR_Utils.hideProgressDialog();
             PSR_Utils.showNoNetworkAlert(getActivity());
         }
 
 
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(),msg,null,this);
     }
 
     @Override
@@ -218,5 +224,10 @@ public class LiveVideoNewRequestFragment extends BaseFragment implements LiveVid
     public void onErrorCode(String s) {
         PSR_Utils.hideProgressDialog();
         PSR_Utils.showAlert(getActivity(),getResources().getString(R.string.somethingwnt_wrong_txt),null);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
     }
 }

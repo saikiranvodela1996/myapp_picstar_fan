@@ -16,24 +16,22 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-public class VideoMsgPresenter  extends BasePresenter<VideoEventView> {
+public class VideoMsgPresenter extends BasePresenter<VideoEventView> {
 
 
-
-
-    public void videoMsgRequest(String header, VideoMsgRequest request) {
-        Disposable disposable = PSRService.getInstance(header).videoMsgRequest(request)
+    public void videoMsgRequest(String lang, String header, VideoMsgRequest request) {
+        Disposable disposable = PSRService.getInstance(lang, header).videoMsgRequest(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<VideoMsgResponse>(){
+                .subscribeWith(new CustomDisposableObserver<VideoMsgResponse>() {
                     @Override
-                    public void onNext(VideoMsgResponse response ) {
+                    public void onNext(VideoMsgResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onCreatingvideoEvntSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onCreatingvideoEvntFailure(response);
                             }
                         }
@@ -45,6 +43,7 @@ public class VideoMsgPresenter  extends BasePresenter<VideoEventView> {
                             getMvpView().onSessionExpired();
                         }
                     }
+
                     @Override
                     public void onConnectionLost() {
                         if (getMvpView() != null) {
@@ -74,23 +73,24 @@ public class VideoMsgPresenter  extends BasePresenter<VideoEventView> {
     }
 
 
-    public void createRequest(String header, CreateServiceReq request) {
-        Disposable disposable = PSRService.getInstance(header).doCreateRequest(request)
+    public void createRequest(String lang, String header, CreateServiceReq request) {
+        Disposable disposable = PSRService.getInstance(lang, header).doCreateRequest(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>(){
+                .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>() {
                     @Override
-                    public void onNext(CreateServiceResponse response ) {
+                    public void onNext(CreateServiceResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onCreatingServiceReqSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onCreatingServiceReqFailure(response);
                             }
                         }
                     }
+
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {
@@ -125,19 +125,6 @@ public class VideoMsgPresenter  extends BasePresenter<VideoEventView> {
         compositeSubscription.add(disposable);
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

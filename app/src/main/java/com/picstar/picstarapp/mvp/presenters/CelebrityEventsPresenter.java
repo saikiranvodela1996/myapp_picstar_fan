@@ -19,19 +19,19 @@ import io.reactivex.schedulers.Schedulers;
 public class CelebrityEventsPresenter extends BasePresenter<CelebrityEventsView> {
 
 
-    public void getCelebrityEvents(String header, CelebrityEventsRequest request) {
-        Disposable disposable = PSRService.getInstance(header).doGetEvents(request.getPage(),request.getUser_id(),request.getCelebrity_id())
+    public void getCelebrityEvents(String lang, String header, CelebrityEventsRequest request) {
+        Disposable disposable = PSRService.getInstance(lang, header).doGetEvents(request.getPage(), request.getUser_id(), request.getCelebrity_id())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CelebrityEventsResponse>(){
+                .subscribeWith(new CustomDisposableObserver<CelebrityEventsResponse>() {
                     @Override
-                    public void onNext(CelebrityEventsResponse response ) {
+                    public void onNext(CelebrityEventsResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onGettingCelebrityEventsSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onGettingCelebrityEventsFailure(response);
                             }
                         }
@@ -51,6 +51,7 @@ public class CelebrityEventsPresenter extends BasePresenter<CelebrityEventsView>
                             getMvpView().onSessionExpired();
                         }
                     }
+
                     @Override
                     public void onServerError() {
                         if (getMvpView() != null) {
@@ -72,24 +73,19 @@ public class CelebrityEventsPresenter extends BasePresenter<CelebrityEventsView>
     }
 
 
-
-
-
-
-
-    public void requestForLiveSelfie(String header, CreateServiceReq request, int eventId) {
-        Disposable disposable = PSRService.getInstance(header).doRequestForLiveSelfie(request)
+    public void requestForLiveSelfie(String lang, String header, CreateServiceReq request, int eventId) {
+        Disposable disposable = PSRService.getInstance(lang, header).doRequestForLiveSelfie(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>(){
+                .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>() {
                     @Override
-                    public void onNext(CreateServiceResponse response ) {
+                    public void onNext(CreateServiceResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onRequestingSelfieSuccess(response, eventId);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage());
+                            } else {
                                 getMvpView().onRequestingSelfieFailure(response);
                             }
                         }
@@ -102,6 +98,7 @@ public class CelebrityEventsPresenter extends BasePresenter<CelebrityEventsView>
                             getMvpView().onNoInternetConnection();
                         }
                     }
+
                     @Override
                     public void onSessionExpired() {
                         if (getMvpView() != null) {
@@ -128,16 +125,6 @@ public class CelebrityEventsPresenter extends BasePresenter<CelebrityEventsView>
         compositeSubscription.add(disposable);
 
     }
-
-
-
-
-
-
-
-
-
-
 
 
 }

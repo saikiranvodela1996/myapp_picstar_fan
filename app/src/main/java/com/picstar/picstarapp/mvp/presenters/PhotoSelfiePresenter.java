@@ -13,19 +13,19 @@ import io.reactivex.schedulers.Schedulers;
 
 public class PhotoSelfiePresenter extends BasePresenter<PhotoSelfieView> {
 
-    public void uploadPhotoSelfie(String header, CreateServiceReq request) {
-        Disposable disposable = PSRService.getInstance(header).createPaymentServReq(request)
+    public void uploadPhotoSelfie(String lang, String header, CreateServiceReq request) {
+        Disposable disposable = PSRService.getInstance(lang, header).createPaymentServReq(request)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>(){
+                .subscribeWith(new CustomDisposableObserver<CreateServiceResponse>() {
                     @Override
-                    public void onNext(CreateServiceResponse response ) {
+                    public void onNext(CreateServiceResponse response) {
                         if (getMvpView() != null) {
-                            if( response.getStatus().equals("SUCCESS"))
-                            {
+                            if (response.getStatus().equals("SUCCESS")) {
                                 getMvpView().onCreatingServiceReqSuccess(response);
-                            }else
-                            {
+                            } else if (response.getStatus().equals("USER_BLOCKED")) {
+                                getMvpView().userBlocked(response.getMessage().toString());
+                            } else {
                                 getMvpView().onCreatingServiceReqFailure(response);
                             }
                         }
@@ -59,14 +59,6 @@ public class PhotoSelfiePresenter extends BasePresenter<PhotoSelfieView> {
         compositeSubscription.add(disposable);
 
     }
-
-
-
-
-
-
-
-
 
 
 }

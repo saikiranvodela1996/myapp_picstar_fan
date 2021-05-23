@@ -34,4 +34,5 @@ public class SplashScreenActivity  extends BaseActivity{
             }
         }, SPLASH_SCREEN_DURATION);
     }
+
 }

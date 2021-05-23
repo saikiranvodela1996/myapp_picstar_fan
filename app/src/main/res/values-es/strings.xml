@@ -36,6 +36,13 @@
     <string name="event_date_txt">Fecha del evento:</string>
     <string name="created_date_txt">Fecha de creación:</string>
 
+
+    <string name="doPayment_alert">Complete el pago para reproducir el video</string>
+
+    <string name="storage_permissions_alert_txt">Se requiere acceso al almacenamiento para hacer un uso completo de esta aplicación </string>
+    <string name="phone_call_permiision_alert">Se requiere acceso a llamadas telefónicas para hacer un uso completo de esta aplicación </string>
+
+
     <string name="cam_Permision_deny_txt">Se requiere acceso a la cámara para hacer un uso completo de esta aplicación</string>
 
     <string name="galleryandcamera_runtimepermission_alert_txt">Se requiere acceso a la galería y la cámara para hacer un uso completo de esta aplicación</string>
@@ -60,6 +67,7 @@
     <string name="language_txt">Idioma</string>
     <string name="notifications_txt">Notificaciones</string>
     <string name="privacypolicy_txt">Condiciones y política de privacidad</string>
+    <string name="privacy_policy">Política de privacidad</string>
     <string name="contactus_txt">Contacta con nosotros</string>
     <string name="done_txt">Hecho</string>
     <string name="username_txt">nombre de usuario</string>
@@ -83,13 +91,13 @@
     <string name="no_txt">No</string>
 
 
-
+    <string name="select_language_txt">Selecciona un idioma</string>
     <string name="upcoming_txt">Próximo</string>
     <string name="unableto_savephoto_txt"> No se puede guardar la foto. Vuelve a intentarlo más tarde.</string>
 
     <string name="please_confirm_txt">Por favor confirmar</string>
 
-
+    <string name="share_txt">Cuota</string>
     <string name="paylater_txt">Paga después</string>
 
 
@@ -123,7 +131,7 @@
     <string name="enter_descrptn_alertmsg"> Por favor escribe Descripción del evento</string>
 
     <string name="recommended_txt">recomendado</string>
-    <string name="request_txt">  Petición</string>
+    <string name="request_txt">  Pedido</string>
 
 
 
@@ -141,6 +149,11 @@
 
 
 
+    <string name="audio_device">Dispositivo de audio</string>
+    <string name="settings">Ajustes</string>
+    <string name="error_retrieving_access_token">Error al recuperar el token</string>
+    <string name="room_screen_select_device">Seleccione el dispositivo</string>
+    <string name="permissions_needed">Se necesitan permisos de cámara y micrófono. Permita la configuración de la aplicación para funciones adicionales.</string>
 
 
 

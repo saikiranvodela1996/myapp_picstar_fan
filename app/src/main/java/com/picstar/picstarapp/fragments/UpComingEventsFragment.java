@@ -1,6 +1,7 @@
 package com.picstar.picstarapp.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.picstar.picstarapp.R;
+import com.picstar.picstarapp.activities.VideoPlayerActivity;
 import com.picstar.picstarapp.adapters.MyHistoryAdapter;
 import com.picstar.picstarapp.callbacks.OnClickPhotoSelfieHistory;
 import com.picstar.picstarapp.mvp.models.eventhistory.Info;
@@ -29,7 +31,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfieHistoryView, OnClickPhotoSelfieHistory {
+public class UpComingEventsFragment extends BaseFragment implements PhotoSelfieHistoryView, OnClickPhotoSelfieHistory, PSR_Utils.OnSingleBtnDialogClick {
     @BindView(R.id.historyRV)
     RecyclerView historyRV;
     @BindView(R.id.noListTv)
@@ -37,9 +39,9 @@ public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfie
 
     private MyHistoryAdapter adapter;
     List<Info> historyList = new ArrayList<>();
-    private int currentPage=1;
-    private boolean isLoading=false;
-    private boolean isAllPagesShown=false;
+    private int currentPage = 1;
+    private boolean isLoading = false;
+    private boolean isAllPagesShown = false;
     private LinearLayoutManager linearLayoutManager;
     private View footerView;
     private ProgressBarViewHolder footerViewHolder;
@@ -53,7 +55,7 @@ public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfie
         linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         historyRV.setLayoutManager(linearLayoutManager);
         footerView = inflater.inflate(R.layout.item_loading, historyRV, false);
-        return  mainView;
+        return mainView;
     }
 
     @Override
@@ -63,12 +65,11 @@ public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfie
         photoSelfieHistoryPresenter.attachMvpView(this);
 
         footerViewHolder = new ProgressBarViewHolder(footerView);
-        adapter = new MyHistoryAdapter(getActivity(), historyList,this,false);
+        adapter = new MyHistoryAdapter(getActivity(), historyList, this, false);
         historyRV.setAdapter(adapter);
         adapter.setFooterView(footerView);
 
         getUpComingEventsHistory();
-
 
 
         historyRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -90,18 +91,18 @@ public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfie
 
     public void getUpComingEventsHistory() {
         if (PSR_Utils.isOnline(getActivity())) {
-            if(noListTv.getVisibility()==View.VISIBLE)
+            if (noListTv.getVisibility() == View.VISIBLE)
                 noListTv.setVisibility(View.GONE);
-            if(historyRV.getVisibility()==View.GONE)
+            if (historyRV.getVisibility() == View.GONE)
                 historyRV.setVisibility(View.VISIBLE);
 
-            if(!isLoading) {
+            if (!isLoading) {
                 PSR_Utils.showProgressDialog(getActivity());
                 historyList.clear();
                 adapter.notifyDataSetChanged();
             }
 
-            photoSelfieHistoryPresenter.getPendingEventsHistory(PSR_Utils.getHeader(psr_prefsManager),PSRConstants.historyUpcomingKey, psr_prefsManager.get(PSRConstants.USERID), currentPage);
+            photoSelfieHistoryPresenter.getPendingEventsHistory(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), PSRConstants.historyUpcomingKey, psr_prefsManager.get(PSRConstants.USERID), currentPage);
         } else {
             PSR_Utils.showNoNetworkAlert(getActivity());
         }
@@ -112,20 +113,24 @@ public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfie
         PSR_Utils.hideProgressDialog();
         isLoading = false;
         footerViewHolder.progressBar.setVisibility(View.GONE);
-        if(response.getInfo()==null||response.getInfo().size()==0||response.getInfo().isEmpty())
-        {
+        if (response.getInfo() == null || response.getInfo().size() == 0 || response.getInfo().isEmpty()) {
             isAllPagesShown = true;
         }
-        if(response.getInfo()!=null && response.getInfo().size()!=0) {
+        if (response.getInfo() != null && response.getInfo().size() != 0) {
             historyList.addAll(response.getInfo());
             adapter.notifyDataSetChanged();
             currentPage++;
-        }else if(currentPage==1)
-        {
+        } else if (currentPage == 1) {
             historyRV.setVisibility(View.GONE);
             noListTv.setVisibility(View.VISIBLE);
             noListTv.setText(response.getMessage().toString());
         }
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(), msg, null, this);
     }
 
     @Override
@@ -143,7 +148,7 @@ public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfie
     @Override
     public void onServerError() {
         PSR_Utils.hideProgressDialog();
-        PSR_Utils.showAlert(getActivity(),getResources().getString(R.string.somethingwnt_wrong_txt),null);
+        PSR_Utils.showAlert(getActivity(), getResources().getString(R.string.somethingwnt_wrong_txt), null);
     }
 
     @Override
@@ -154,7 +159,7 @@ public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfie
     @Override
     public void onError(Throwable throwable) {
         PSR_Utils.hideProgressDialog();
-        PSR_Utils.showAlert(getActivity(),getResources().getString(R.string.somethingwnt_wrong_txt),null);
+        PSR_Utils.showAlert(getActivity(), getResources().getString(R.string.somethingwnt_wrong_txt), null);
     }
 
     @Override
@@ -166,17 +171,30 @@ public class UpComingEventsFragment extends BaseFragment  implements PhotoSelfie
     @Override
     public void onErrorCode(String s) {
         PSR_Utils.hideProgressDialog();
-        PSR_Utils.showAlert(getActivity(),getResources().getString(R.string.somethingwnt_wrong_txt),null);
+        PSR_Utils.showAlert(getActivity(), getResources().getString(R.string.somethingwnt_wrong_txt), null);
     }
 
     @Override
-    public void onClickPhotoSelfie(String imagePath,boolean isCameFromCompletedHistory) {
-        PSR_Utils.showImageAlert(getActivity(), imagePath,isCameFromCompletedHistory);
+    public void onClickPhotoSelfie(String imagePath, boolean isCameFromCompletedHistory) {
+        PSR_Utils.showImageAlert(getActivity(), imagePath, isCameFromCompletedHistory);
     }
 
     @Override
     public void onClickPaynow(Info info) {
-        PSR_Utils.navigatingAccordingly(getActivity(),info);
+        PSR_Utils.navigatingAccordingly(getActivity(), info);
+    }
+
+    @Override
+    public void onVideoClicked(String filePath) {
+
+        Intent intent = new Intent(getActivity(), VideoPlayerActivity.class);
+        intent.putExtra(PSRConstants.VIDEOURL, filePath);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
     }
 
 

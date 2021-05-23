@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.picstar.picstarapp.R;
 import com.picstar.picstarapp.adapters.StockPhotosAdapter;
+import com.picstar.picstarapp.helpers.LocaleHelper;
 import com.picstar.picstarapp.mvp.models.celebrities.CelebritiesByIdRequest;
 import com.picstar.picstarapp.mvp.models.stockphotos.Info;
 import com.picstar.picstarapp.mvp.models.stockphotos.StockPhotosResponse;
@@ -39,7 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class StockPhotosActivity extends BaseActivity implements StockPhotosView {
+public class StockPhotosActivity extends BaseActivity implements StockPhotosView, PSR_Utils.OnSingleBtnDialogClick {
     @BindView(R.id.stockpics_recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.left_side_menu_option)
@@ -148,12 +149,17 @@ public class StockPhotosActivity extends BaseActivity implements StockPhotosView
     }
 
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, LocaleHelper.getLanguage(newBase)));
+    }
+
     public void gettingAllStockPhotos() {
         CelebritiesByIdRequest celebritiesByIdRequest = new CelebritiesByIdRequest();
         celebritiesByIdRequest.setUserId(celebrityID);
         ///this value changes during pagination.
         celebritiesByIdRequest.setPage(currentPage);
-        stockPhotosPresenter.getStockPicsOfCelebrity(PSR_Utils.getHeader(psr_prefsManager), celebritiesByIdRequest);
+        stockPhotosPresenter.getStockPicsOfCelebrity(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), celebritiesByIdRequest);
 
     }
 
@@ -261,6 +267,12 @@ public class StockPhotosActivity extends BaseActivity implements StockPhotosView
     }
 
     @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(this, msg, null, this);
+    }
+
+    @Override
     public void onGettingStockPicsFailure(StockPhotosResponse response) {
         PSR_Utils.hideProgressDialog();
         PSR_Utils.showAlert(this, response.getMessage().toString(), null);
@@ -299,6 +311,11 @@ public class StockPhotosActivity extends BaseActivity implements StockPhotosView
     public void onErrorCode(String s) {
         PSR_Utils.hideProgressDialog();
         PSR_Utils.showAlert(this, getResources().getString(R.string.somethingwnt_wrong_txt), null);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(this);
     }
 
 

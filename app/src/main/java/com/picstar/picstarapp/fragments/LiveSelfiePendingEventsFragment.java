@@ -35,7 +35,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class LiveSelfiePendingEventsFragment extends BaseFragment implements PendingLiveSelfieView {
+public class LiveSelfiePendingEventsFragment extends BaseFragment implements PendingLiveSelfieView, PSR_Utils.OnSingleBtnDialogClick {
 
 
     @BindView(R.id.liveselfie_pending_recycler_View)
@@ -126,7 +126,7 @@ public class LiveSelfiePendingEventsFragment extends BaseFragment implements Pen
         videoMsgsPendingReq.setUserId(psr_prefsManager.get(PSRConstants.USERID));
         videoMsgsPendingReq.setStatus(PSRConstants.PENDING);
         videoMsgsPendingReq.setPage(currentPage);
-        pendingLiveSelfiePresenter.getPendingLiveSelfieReqs(PSR_Utils.getHeader(psr_prefsManager), videoMsgsPendingReq);
+        pendingLiveSelfiePresenter.getPendingLiveSelfieReqs(psr_prefsManager.get(PSRConstants.SELECTED_LANGUAGE), PSR_Utils.getHeader(psr_prefsManager), videoMsgsPendingReq);
     }
 
 
@@ -152,6 +152,12 @@ public class LiveSelfiePendingEventsFragment extends BaseFragment implements Pen
         }
 
 
+    }
+
+    @Override
+    public void userBlocked(String msg) {
+        PSR_Utils.hideProgressDialog();
+        PSR_Utils.singleBtnAlert(getActivity(), msg, null, this);
     }
 
 
@@ -207,6 +213,11 @@ public class LiveSelfiePendingEventsFragment extends BaseFragment implements Pen
     public void onErrorCode(String s) {
         PSR_Utils.hideProgressDialog();
         PSR_Utils.showAlert(getActivity(), getResources().getString(R.string.somethingwnt_wrong_txt), null);
+    }
+
+    @Override
+    public void onClickOk() {
+        PSR_Utils.navigateToContacUsScreen(getActivity());
     }
 
 

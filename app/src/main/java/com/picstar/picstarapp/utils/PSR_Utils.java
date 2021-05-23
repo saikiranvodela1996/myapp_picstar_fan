@@ -3,19 +3,26 @@ package com.picstar.picstarapp.utils;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Insets;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Environment;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -43,17 +50,23 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.DexterError;
 import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.PermissionRequestErrorListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.picstar.picstarapp.R;
+import com.picstar.picstarapp.activities.ContactUsActivity;
 import com.picstar.picstarapp.activities.LiveSelfieCameraActivity;
 import com.picstar.picstarapp.activities.MainActivity;
+import com.picstar.picstarapp.activities.MyProfileActivity;
 import com.picstar.picstarapp.activities.PaymentActivity;
 import com.picstar.picstarapp.callbacks.OnClickCelebrity;
 import com.picstar.picstarapp.callbacks.ProfileUpdateSuccess;
@@ -66,6 +79,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -77,8 +94,11 @@ import java.util.TimeZone;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import jp.wasabeef.glide.transformations.BlurTransformation;
+import retrofit2.http.Url;
 
 import static com.bumptech.glide.request.RequestOptions.bitmapTransform;
+import static com.picstar.picstarapp.utils.PSRConstants.DATE_TIME_FORMAT_IN_FILE_NAMES;
+import static com.picstar.picstarapp.utils.PSRConstants.IMAGE_FILE_EXTENSION;
 
 public class PSR_Utils {
     private static Gson gson;
@@ -87,7 +107,7 @@ public class PSR_Utils {
     private static long mLastClickAt = System.currentTimeMillis();
     private static AlertDialog dialog;
 
-    public static String saveToInternalStorage(Bitmap bitmapImage,Context context) {
+    public static String saveToInternalStorage(Bitmap bitmapImage, Context context) {
         ContextWrapper cw = new ContextWrapper(context);
         // path to /data/data/yourapp/app_data/imageDir
         File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
@@ -122,13 +142,13 @@ public class PSR_Utils {
                 mLastClickAt = System.currentTimeMillis();
                 return true;
             }
-        } catch (Exception e){
-            Toast.makeText(activity,e.getMessage(),Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            Toast.makeText(activity, e.getMessage(), Toast.LENGTH_LONG).show();
         }
         return true;
     }
 
-    public static   String getServiceCost(String cost) {
+    public static String getServiceCost(String cost) {
         String serviceCost = "";
         if (cost.endsWith(".0")) {
             serviceCost = cost.replace(".0", "");
@@ -166,6 +186,7 @@ public class PSR_Utils {
             e.printStackTrace();
         }
     }
+
     public static String getId(Activity activity) {
 
         String androidId = Settings.Secure.getString(activity.getContentResolver(),
@@ -342,7 +363,7 @@ public class PSR_Utils {
                 viewHolder.okayButtonm.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(profileUpdateSuccess!=null){
+                        if (profileUpdateSuccess != null) {
                             profileUpdateSuccess.onUpdatingSuccess();
                         }
                         dialog.dismiss();
@@ -356,7 +377,6 @@ public class PSR_Utils {
                 int dialogHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
                 dialog.getWindow().setLayout(dialogWidth, dialogHeight);
                 dialog.show();
-
 
 
             } catch (Exception e) {
@@ -404,33 +424,35 @@ public class PSR_Utils {
     }
 
 
-
-
-
     public static void showToast(Activity activity, String msg) {
         Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show();
     }
+/*
 
+    public interface OnOkClick {
+        void onClickOkWhenUserBlocked();
+    }
 
-    public static void singleButtonAlert(final Activity act, String title, String message, Runnable runnable) {
+    public static void singleButtonAlert(final Activity act,  String message, Runnable runnable,OnOkClick onOkClick) {
         if (act != null) {
             try {
                 int width = act.getResources().getDisplayMetrics().widthPixels;
                 final Dialog dialog = new Dialog(act, R.style.DialogTheme);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                View view = act.getLayoutInflater().inflate(R.layout.orderplaced_layout, null);
-                lDialogViewHolder viewHolder = new lDialogViewHolder(view);
+                View view = act.getLayoutInflater().inflate(R.layout.single_message_layout, null);
+                InternetDialogViewHolder viewHolder = new InternetDialogViewHolder(view);
                 dialog.setContentView(view);
                 dialog.setCanceledOnTouchOutside(false);
 
-               /* viewHolder.alertTitle.setText(title);
+                //viewHolder.alertTitle.setText(title);
                 viewHolder.message.setText(message);
-                viewHolder.okayButton.setOnClickListener(new View.OnClickListener() {
+                viewHolder.okayButtonm.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
+                        onOkClick.onClickOkWhenUserBlocked();
                     }
-                });*/
+                });
                 if (dialog == null || dialog.getWindow() == null) {
                     return;
                 }
@@ -456,6 +478,7 @@ public class PSR_Utils {
             ButterKnife.bind(this, view);
         }
     }
+*/
 
 
     public static void checkPermissionToProgress(Activity activity, Runnable runnable) {
@@ -511,18 +534,18 @@ public class PSR_Utils {
 
     }
 
-    public static void showImageAlert(Context context, String imageString,boolean isCameFromCompletedHistory) {
+    public static void showImageAlert(Context context, String imageString, boolean isCameFromCompletedHistory) {
         try {
 
             View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_image_fullview, null);
             LinearLayout frameLayout = (LinearLayout) dialogView.findViewById(R.id.linear_Layout);
             final ImageView imageView = (ImageView) dialogView.findViewById(R.id.imageFullView);
 
-            ProgressBar progressBar =(ProgressBar)dialogView.findViewById(R.id.progressbar);
-            ImageView closeBtn =(ImageView)dialogView.findViewById(R.id.buttonClose);
-            int blurTransformation=40;
-            if(isCameFromCompletedHistory){
-                blurTransformation=1;
+            ProgressBar progressBar = (ProgressBar) dialogView.findViewById(R.id.progressbar);
+            ImageView closeBtn = (ImageView) dialogView.findViewById(R.id.buttonClose);
+            int blurTransformation = 40;
+            if (isCameFromCompletedHistory) {
+                blurTransformation = 1;
             }
             Glide.with(context)
                     .load(imageString)
@@ -537,12 +560,12 @@ public class PSR_Utils {
 
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                          progressBar.setVisibility(View.GONE);
+                            progressBar.setVisibility(View.GONE);
                             return false;
                         }
                     })
                     .into(imageView);
-             Dialog dialog=new Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+            Dialog dialog = new Dialog(context, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
             dialog.setContentView(dialogView);
 
             closeBtn.setOnClickListener(new View.OnClickListener() {
@@ -565,6 +588,7 @@ public class PSR_Utils {
             e.printStackTrace();
         }
     }
+
     public static Bitmap getBitmap(String path) {
         Bitmap bitmap = null;
         try {
@@ -580,9 +604,7 @@ public class PSR_Utils {
     }
 
 
-
-
-    public static void logoutDialog(final Activity activity,  final OnClickCelebrity clickListener) {
+    public static void logoutDialog(final Activity activity, final OnClickCelebrity clickListener) {
         if (activity == null || activity.isFinishing()) {
             return;
         }
@@ -617,9 +639,6 @@ public class PSR_Utils {
         });
         dialog.show();
     }
-
-
-
 
 
     public static void showDialog(final Activity activity, final String message, final OnAlertDialogOptionSelected clickListener) {
@@ -675,6 +694,7 @@ public class PSR_Utils {
                 int width = act.getResources().getDisplayMetrics().widthPixels;
                 final Dialog dialog = new Dialog(act, R.style.DialogTheme);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                //dialog.setCancelable(false);
                 View view = act.getLayoutInflater().inflate(R.layout.single_message_layout, null);
                 InternetDialogViewHolder viewHolder = new InternetDialogViewHolder(view);
                 dialog.setContentView(view);
@@ -718,17 +738,14 @@ public class PSR_Utils {
     }
 
 
-
-
-
-    public static void navigatingAccordingly(Activity activity,Info info) {
+    public static void navigatingAccordingly(Activity activity, Info info) {
 
         if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.LIVESELFIE_SERVICE_REQ_ID)) {
             if (info.getLiveEvent() == null && info.getFilePath() != null) {
                 ////DirectLiveSelfie...Navigate to payment..
                 Intent intent = new Intent(activity, PaymentActivity.class);
                 intent.putExtra(PSRConstants.SERVICECOST, info.getAmount().toString());
-                intent.putExtra(PSRConstants.SERVICEREQTYPEID,PSRConstants.LIVESELFIE_SERVICE_REQ_ID);
+                intent.putExtra(PSRConstants.SERVICEREQTYPEID, PSRConstants.LIVESELFIE_SERVICE_REQ_ID);
                 intent.putExtra(PSRConstants.ISCAMEFROMHISTORY, true);
                 intent.putExtra(PSRConstants.CELEBRITYID, info.getCelebrityId());
                 intent.putExtra(PSRConstants.SERVICEREQID, info.getServiceRequestId());
@@ -739,10 +756,10 @@ public class PSR_Utils {
 
                 /// live selfie taken but payment is not completed......go to payment screen.....
                 Intent intent = new Intent(activity, PaymentActivity.class);
-                intent.putExtra(PSRConstants.S3UPLOADED_IMAGEURL,info.getFilePath().toString());
-                intent.putExtra(PSRConstants.SERVICEREQTYPEID,PSRConstants.LIVESELFIE_SERVICE_REQ_ID);
-                intent.putExtra(PSRConstants.ISCAMEFROMHISTORY,true);
-                intent.putExtra(PSRConstants.SERVICEREQID,info.getServiceRequestId());
+                intent.putExtra(PSRConstants.S3UPLOADED_IMAGEURL, info.getFilePath().toString());
+                intent.putExtra(PSRConstants.SERVICEREQTYPEID, PSRConstants.LIVESELFIE_SERVICE_REQ_ID);
+                intent.putExtra(PSRConstants.ISCAMEFROMHISTORY, true);
+                intent.putExtra(PSRConstants.SERVICEREQID, info.getServiceRequestId());
                 intent.putExtra(PSRConstants.EVENTID, info.getLiveEvent().getEventId().toString());
                 intent.putExtra(PSRConstants.SERVICECOST, info.getAmount().toString());
                 intent.putExtra(PSRConstants.CELEBRITYID, info.getCelebrityId());
@@ -756,12 +773,12 @@ public class PSR_Utils {
                     @Override
                     public void run() {
                         Intent intent = new Intent(activity, LiveSelfieCameraActivity.class);
-                        intent.putExtra(PSRConstants.EVENTID,  info.getLiveEvent().getEventId().toString());
+                        intent.putExtra(PSRConstants.EVENTID, info.getLiveEvent().getEventId().toString());
                         intent.putExtra(PSRConstants.SERVICECOST, info.getAmount().toString());
                         intent.putExtra(PSRConstants.CELEBRITYID, info.getCelebrityId());
                         intent.putExtra(PSRConstants.SELECTEDCELEBRITYNAME, info.getCelebrityUser().getUsername());
                         intent.putExtra(PSRConstants.ISCAMEFROMHISTORY, true);
-                        intent.putExtra(PSRConstants.SERVICEREQID,info.getServiceRequestId());
+                        intent.putExtra(PSRConstants.SERVICEREQID, info.getServiceRequestId());
                         activity.startActivity(intent);
                     }
                 };
@@ -769,44 +786,202 @@ public class PSR_Utils {
 
             }
 
-        } else if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.PHOTOSELFIE_SERVICE_REQ_ID)&& info.getFilePath()!=null) {
+        } else if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.PHOTOSELFIE_SERVICE_REQ_ID) && info.getFilePath() != null) {
             ///Here photo selfie is created but payment is not made .so NAvigate  to paymentscreen...
-            Intent intent =new Intent(activity,PaymentActivity.class);
+            Intent intent = new Intent(activity, PaymentActivity.class);
             intent.putExtra(PSRConstants.ISCAMEFROMHISTORY, true);
-            intent.putExtra(PSRConstants.CELEBRITYPHOTOID,info.getPhotoId());
+            intent.putExtra(PSRConstants.CELEBRITYPHOTOID, info.getPhotoId());
             intent.putExtra(PSRConstants.SERVICECOST, info.getAmount().toString());
             intent.putExtra(PSRConstants.CELEBRITYID, info.getCelebrityId());
-            intent.putExtra(PSRConstants.SERVICEREQID,info.getServiceRequestId());
-            intent.putExtra(PSRConstants.SERVICEREQTYPEID,PSRConstants.PHOTOSELFIE_SERVICE_REQ_ID);
+            intent.putExtra(PSRConstants.SERVICEREQID, info.getServiceRequestId());
+            intent.putExtra(PSRConstants.SERVICEREQTYPEID, PSRConstants.PHOTOSELFIE_SERVICE_REQ_ID);
             intent.putExtra(PSRConstants.S3UPLOADED_IMAGEURL, info.getFilePath().toString());
             activity.startActivity(intent);
 
 
         } else if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.VIDEOMSGS_SERVICE_REQ_ID) && !info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
             ///VIDEOMSG IS REQUESTED BUT PAYMENT IS NOT DONE..So....navigating to payment...
-            Intent intent =new Intent(activity,PaymentActivity.class);
+            Intent intent = new Intent(activity, PaymentActivity.class);
             intent.putExtra(PSRConstants.ISCAMEFROMHISTORY, true);
             intent.putExtra(PSRConstants.SERVICECOST, info.getAmount().toString());
             intent.putExtra(PSRConstants.CELEBRITYID, info.getCelebrityId());
-            intent.putExtra(PSRConstants.SERVICEREQID,info.getServiceRequestId());
-            intent.putExtra(PSRConstants.SERVICEREQTYPEID,PSRConstants.VIDEOMSGS_SERVICE_REQ_ID);
+            intent.putExtra(PSRConstants.SERVICEREQID, info.getServiceRequestId());
+            intent.putExtra(PSRConstants.SERVICEREQTYPEID, PSRConstants.VIDEOMSGS_SERVICE_REQ_ID);
             activity.startActivity(intent);
         } else if (info.getServiceRequestTypeId() == Integer.parseInt(PSRConstants.LIVE_VIDEO_SERVICE_REQ_ID) && !info.getStatus().equalsIgnoreCase(PSRConstants.PAYMENTSUCESS)) {
             ///LIVEVIDEO IS REQUESTED BUT PAYMENT IS NOT DONE...So....navigating to payment...
-            Intent intent =new Intent(activity,PaymentActivity.class);
+            Intent intent = new Intent(activity, PaymentActivity.class);
             intent.putExtra(PSRConstants.ISCAMEFROMHISTORY, true);
             intent.putExtra(PSRConstants.SERVICECOST, info.getAmount().toString());
             intent.putExtra(PSRConstants.CELEBRITYID, info.getCelebrityId());
-            intent.putExtra(PSRConstants.SERVICEREQID,info.getServiceRequestId());
-            intent.putExtra(PSRConstants.SERVICEREQTYPEID,PSRConstants.LIVE_VIDEO_SERVICE_REQ_ID);
+            intent.putExtra(PSRConstants.SERVICEREQID, info.getServiceRequestId());
+            intent.putExtra(PSRConstants.SERVICEREQTYPEID, PSRConstants.LIVE_VIDEO_SERVICE_REQ_ID);
             activity.startActivity(intent);
         }
 
     }
 
 
+    public static String getClickedPhotoPath(Context c) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            return getAppDirPath(c) + File.separator + getNewFileName() + IMAGE_FILE_EXTENSION;
+        }
+        return null;
+    }
+
+    public static String getAppDirPath(Context c) {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+    }
+
+    public static String getNewFileName() {
+        return "picstar" + getCurrentTime();
+    }
+
+    public static String getCurrentTime() {
+        return new SimpleDateFormat(DATE_TIME_FORMAT_IN_FILE_NAMES, Locale.getDefault()).format(Calendar.getInstance().getTime());
+    }
 
 
+    public static String createFilePath(Context c) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            return getAppDirPath(c) + File.separator;
+        }
+        return null;
+    }
 
+
+    public static void checkRunTimePermissionsNdShareImage(Activity activity, String imageUrl) {
+        Dexter.withActivity(activity)
+                .withPermissions(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+
+                        if (report.areAllPermissionsGranted()) {
+                            //runnable.run();
+                            shareImage(activity, imageUrl);
+                        } else {
+                            PSR_Utils.showToast(activity, activity.getResources().getString(R.string.storage_permissions_alert_txt));
+                        }
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            PSR_Utils.showToast(activity, activity.getResources().getString(R.string.storage_permissions_alert_txt));
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        PSR_Utils.showToast(activity, activity.getResources().getString(R.string.somethingwnt_wrong_txt));
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+
+    public static void shareImage(Activity activity, String imageUrl) {
+        PSR_Utils.showProgressDialog(activity);
+        Glide.with(activity)
+                .load(imageUrl)
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        Bitmap bitmap = ((BitmapDrawable) resource).getBitmap();
+                        saveImage(activity, bitmap);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        super.onLoadFailed(errorDrawable);
+                        PSR_Utils.hideProgressDialog();
+                        Toast.makeText(activity, "Failed to Download Image! Please try again later.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+    static void saveImage(Activity activity, Bitmap image) {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                downloadfile(activity, image);
+            }
+        };
+        thread.start();
+    }
+
+    private static void downloadfile(Activity activity, Bitmap image) {
+
+        SimpleDateFormat sd = new SimpleDateFormat("yymmhhss");
+        String date = sd.format(new Date());
+        try {
+            File storageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    + "/PicStar/image");
+            boolean success = true;
+            File file = new File(storageDir.getAbsolutePath());
+            Log.v("damn", file.getAbsolutePath());
+            String[] myFiles;
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            if (file.list() != null) {
+                myFiles = file.list();
+                for (String s : myFiles) {
+                    File myFile = new File(file, s);
+                    myFile.delete();
+                }
+            }
+            File filename = new File(storageDir, date + ".jpeg");
+            try {
+                OutputStream fOut = new FileOutputStream(filename);
+                image.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                fOut.close();
+                PSR_Utils.hideProgressDialog();
+                Uri pictureUri = Uri.parse(filename.toString());
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.putExtra(Intent.EXTRA_STREAM, pictureUri);
+                shareIntent.setType("image/*");
+                activity.startActivity(Intent.createChooser(shareIntent, "Shareing Image..."));
+                Log.v("damn", "started intent");
+            } catch (Exception e) {
+                PSR_Utils.hideProgressDialog();
+                e.printStackTrace();
+                Log.v("damn", e.toString());
+            }
+        } catch (Exception e) {
+            PSR_Utils.hideProgressDialog();
+            Log.v("damn", e.getMessage());
+        }
+
+    }
+
+
+    public static void navigateToContacUsScreen(Activity activity) {
+        Intent intent = new Intent(activity, ContactUsActivity.class);
+        intent.putExtra("ISCAME_FROM_BLOCKED_SCREEN", true);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        activity.startActivity(intent);
+    }
 
 }
+
+
+
+
+
+
+

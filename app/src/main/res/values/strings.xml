@@ -1,4 +1,5 @@
 <resources>
+
     <string name="app_name">PicStar</string>
     <string name="get_started_string">Create and Share Selfie With Celebrity \n you like in just few minutes</string>
 
@@ -31,6 +32,7 @@
     <string name="viewmore_txt">View More</string>
     <string name="notifications_txt">Notifications</string>
     <string name="privacypolicy_txt">Terms &amp; Privacy Policy </string>
+    <string name="privacy_policy">Privacy policy </string>
     <string name="contactus_txt">Contact us</string>
     <string name="somethingwnt_wrong_txt">Something went wrong</string>
     <string name="logout_txt">Logout</string>
@@ -57,6 +59,11 @@
     <string name="completedrequests_txt"> Completed Requests</string>
     <string name="chooseoption_txt">Choose an option</string>
     <string name="please_confirm_txt">Please confirm</string>
+
+    <string name="phone_call_permiision_alert">Phone call access is required to make full use of this app </string>
+
+    <string name="storage_permissions_alert_txt">Storage access is required to make full use of this app </string>
+
     <string name="cam_Permision_deny_txt">Camera access is required to make full use of this app </string>
     <string name="galleryandcamera_runtimepermission_alert_txt">Gallery and Camera access is required to make full use of this app </string>
     <string name="gallery_runtimepermission_alert_txt">Gallery access is required to make full use of this app </string>
@@ -78,10 +85,19 @@
     <string name="select_dob_alertmsg">Please select your date of birth</string>
     <string name="entervalid_phonenumb_alertmsg"> Please enter valid phone number</string>
     <string name="enter_eventname_txt">Please enter event name</string>
-
+    <string name="select_language_txt">Select a Language</string>
     <string name="enter_descrptn_alertmsg"> Please enter Event description</string>
 
     <string name="enter_date_alertmsg">Please enter date of event</string>
+
+
+    <string name="share_txt">Share</string>
+
+
+
+
+
+    <string name="doPayment_alert">Please complete payment to play video</string>
 
     <string name="request_txt">Request</string>
    <!-- <string name="navigation_drawer_open">Open Navigation Drawer</string>
@@ -111,9 +127,11 @@
     <string name="permission_rationale_camera">Camera permission is required to enable the camera</string>
 
 
-
-
-
+    <string name="audio_device">Audio device</string>
+    <string name="settings">Settings</string>
+    <string name="error_retrieving_access_token">Error retrieving token</string>
+    <string name="room_screen_select_device">Select Device</string>
+    <string name="permissions_needed">Camera and Microphone permissions needed. Please allow in App Settings for additional functionality.</string>
     <string name="logout_confirm_txt">Are you sure you want to Logout?</string>
 
 

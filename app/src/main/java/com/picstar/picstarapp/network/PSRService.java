@@ -45,8 +45,8 @@ import retrofit2.converter.moshi.MoshiConverterFactory;
 public class PSRService {
 
     private static PSRService instance;
-    private static String headerValue=null;
-
+    private static String headerValue = null;
+    private static String language = "";
     private Retrofit retrofit;
 
     private PSRApi psrApi;
@@ -55,11 +55,11 @@ public class PSRService {
     //    private static final int TIMEOUT = 600;
     private Request request;
 
-    public static PSRService getInstance(String header) {
+    public static PSRService getInstance(String lang, String header) {
         if (instance == null) {
             instance = new PSRService();
         }
-
+        language = lang;
         headerValue = header;
         return instance;
     }
@@ -89,6 +89,7 @@ public class PSRService {
 
                 if (headerValue != null && !headerValue.isEmpty()) {
                     builder.header(PSRConstants.APP_HEADER, headerValue);
+                    builder.addHeader("Accept-Language", language);
                 }
                 builder.method(original.method(), original.body());
                 request = builder.build();
@@ -102,21 +103,21 @@ public class PSRService {
     }
 
 
-
     public Observable<LoginResponse> doLogin(LoginRequest request) {
         return psrApi.doLogin(request);
     }
 
-    public Observable<CategoriesListResponse> doGetCategoriesList() {
-        return psrApi.doGetCategoriesList();
+    public Observable<CategoriesListResponse> doGetCategoriesList(String userId) {
+        return psrApi.doGetCategoriesList(userId);
     }
 
-    public Observable<CelebritiesByIdResponse> doGetCelebritiesById(int page,int id) {
-        return psrApi.doGetCelebritiesById(page,id);
+    public Observable<CelebritiesByIdResponse> doGetCelebritiesById(int page, int id,String userID) {
+        return psrApi.doGetCelebritiesById(page, id,userID);
     }
-    public Observable<CelebritiesByIdResponse> doGetMyFav(int page,String useriD) {
-        return psrApi.doGetMyFav(page,useriD);
-    }
+/*
+    public Observable<CelebritiesByIdResponse> doGetMyFav(int page, String useriD) {
+        return psrApi.doGetMyFav(page, useriD);
+    }*/
 
 
     public Observable<AddtoFavResponse> doAddToMyFavs(AddtoFavRequest request) {
@@ -124,16 +125,13 @@ public class PSRService {
     }
 
 
-    public Observable<CelebritiesByIdResponse> doSearchForCelebrity( int categoryId,int page,String searchString,String userId) {
-        return psrApi.doSearchForCelebrity(categoryId,page,searchString,userId);
+    public Observable<CelebritiesByIdResponse> doSearchForCelebrity(int categoryId, int page, String searchString, String userId) {
+        return psrApi.doSearchForCelebrity(categoryId, page, searchString, userId);
     }
 
 
-
-
-
-    public Observable<CelebrityEventsResponse> doGetEvents(int page, String userId,String celebrityId) {
-        return psrApi.doGetEvents(page,userId,celebrityId);
+    public Observable<CelebrityEventsResponse> doGetEvents(int page, String userId, String celebrityId) {
+        return psrApi.doGetEvents(page, userId, celebrityId);
     }
 
 
@@ -142,54 +140,52 @@ public class PSRService {
     }
 
 
-
-
     public Observable<VideoMsgResponse> videoMsgRequest(VideoMsgRequest request) {
         return psrApi.videoMsgRequest(request);
     }
+
     public Observable<CreateServiceResponse> doCreateRequest(CreateServiceReq request) {
         return psrApi.doCreateRequest(request);
     }
 
     public Observable<PendingVideoMsgsResponse> dogetPendingVideoMsgs(VideoMsgsPendingReq req) {
-        return psrApi.dogetPendingVideoMsgs(req.getUserId(),req.getCelebrityId(),req.getStatus(),req.getPage());
+        return psrApi.dogetPendingVideoMsgs(req.getUserId(), req.getCelebrityId(), req.getStatus(), req.getPage());
     }
 
     public Observable<StockPhotosResponse> doGetStockPicsOfCelebrity(CelebritiesByIdRequest req) {
-        return psrApi.doGetStockPicsOfCelebrity(req.getUserId(),req.getPage());
-    }
-    public Observable<CelebritiesByIdResponse> doGetRecomCelebritiesById(CelebritiesByIdRequest request) {
-        return psrApi.doGetRecomCelebritiesById(request.getPage(),request.getCategoryId());
+        return psrApi.doGetStockPicsOfCelebrity(req.getUserId(), req.getPage());
     }
 
+    public Observable<CelebritiesByIdResponse> doGetRecomCelebritiesById(CelebritiesByIdRequest request) {
+        return psrApi.doGetRecomCelebritiesById(request.getPage(), request.getCategoryId());
+    }
 
 
     public Observable<LiveSelfiePendingResponse> dogetPendingLiveSelfieReqs(VideoMsgsPendingReq req) {
-        return psrApi.dogetPendingLiveSelfieReqs(req.getUserId(),req.getCelebrityId(), req.getStatus(),req.getPage());
+        return psrApi.dogetPendingLiveSelfieReqs(req.getUserId(), req.getCelebrityId(), req.getStatus(), req.getPage());
     }
-
-
-
 
 
     public Observable<LiveEventsHistoryResponse> doGetHistory(String userId, int pageNo, int serviceReqId, String status) {
-        return psrApi.doGetHistory(userId,pageNo,serviceReqId ,status);
+        return psrApi.doGetHistory(userId, pageNo, serviceReqId, status);
     }
 
 
-    public Observable<PendingHistoryResponse> doGetPendingHistory(String userId,String statuskey, int pageNo) {
-        return psrApi.doGetPendingHistory(userId,statuskey,pageNo);
+    public Observable<PendingHistoryResponse> doGetPendingHistory(String userId, String statuskey, int pageNo) {
+        return psrApi.doGetPendingHistory(userId, statuskey, pageNo);
     }
+
     public Observable<VideoMsgsHistoryResponse> doGetVideoMsgHistory(String userId, int pageNo, int serviceReqId, String status) {
-        return psrApi.doGetVideoMsgHistory(userId,pageNo,serviceReqId ,status);
+        return psrApi.doGetVideoMsgHistory(userId, pageNo, serviceReqId, status);
     }
+
     public Observable<UpdateProfileResponse> doUpdateUserProfile(UpdateProfileReq req) {
         return psrApi.doUpdateUserProfile(req);
     }
 
 
     public Observable<PendingLiveVideoResponse> dogetPendingLiveVideo(LiveVideoPendingReq req) {
-        return psrApi.dogetPendingLiveVideo(req.getUserId(),req.getCelebrityId(),req.getStatus(),req.getPage());
+        return psrApi.dogetPendingLiveVideo(req.getUserId(), req.getCelebrityId(), req.getStatus(), req.getPage());
     }
 
     public Observable<LiveVideoResponse> liveVideoRequest(LiveVideoRequest request) {
@@ -202,8 +198,8 @@ public class PSRService {
     }
 
 
-    public Observable<ResponseBody> callStripeChargesApi(String amount,String currency,String descripn,String token ) {
-        return psrApi.callStripeChargesApi( amount, currency, descripn, token);
+    public Observable<ResponseBody> callStripeChargesApi(String amount, String currency, String descripn, String token) {
+        return psrApi.callStripeChargesApi(amount, currency, descripn, token);
     }
 
 
